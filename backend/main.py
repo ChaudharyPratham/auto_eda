@@ -1,0 +1,57 @@
+"""
+Auto EDA - FastAPI Backend
+Main application entry point. Registers all routes and configures middleware.
+"""
+
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+from routes import upload, analysis, cleaning, visualization, download
+
+# Load environment variables from .env file
+load_dotenv()
+
+app = FastAPI(
+    title="Auto EDA API",
+    description="Automated Exploratory Data Analysis Platform",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# ---------------------------------------------------------------------------
+# CORS – allow the React frontend (Vite dev server & Docker) to call the API
+# ---------------------------------------------------------------------------
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000,http://localhost:80"
+).split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------------------------------------------------------------------------
+# Ensure required directories exist at startup
+# ---------------------------------------------------------------------------
+for folder in ["uploads", "cleaned", "reports"]:
+    os.makedirs(folder, exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Register API routes (all prefixed with /api)
+# ---------------------------------------------------------------------------
+app.include_router(upload.router,        prefix="/api", tags=["Upload"])
+app.include_router(analysis.router,      prefix="/api", tags=["Analysis"])
+app.include_router(cleaning.router,      prefix="/api", tags=["Cleaning"])
+app.include_router(visualization.router, prefix="/api", tags=["Visualization"])
+app.include_router(download.router,      prefix="/api", tags=["Download"])
+
+
+@app.get("/")
+def root():
+    return {"message": "Auto EDA API is running", "docs": "/docs"}

@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context:    ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist uploaded / cleaned files between restarts
+      - ./backend/uploads:/app/uploads
+      - ./backend/cleaned:/app/cleaned
+      - ./backend/reports:/app/reports
+    environment:
+      HOST:              "0.0.0.0"
+      PORT:              "8000"
+      ALLOWED_ORIGINS:   "http://localhost,http://localhost:80"
+      MAX_UPLOAD_SIZE_MB: "500"
+    restart: unless-stopped
+
+  # ── React frontend (nginx) ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context:    ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

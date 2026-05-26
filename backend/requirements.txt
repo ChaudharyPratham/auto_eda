@@ -1,0 +1,22 @@
+# ─── Web framework ────────────────────────────────────────────────────────────
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+
+# ─── Data processing ──────────────────────────────────────────────────────────
+pandas==2.2.1
+numpy==1.26.4
+scipy==1.12.0
+
+# ─── File format support ──────────────────────────────────────────────────────
+openpyxl==3.1.2        # Excel (.xlsx)
+pyarrow==15.0.2        # Parquet + fast CSV
+fastparquet==2024.2.0  # Alternative Parquet engine
+lxml==5.2.1            # HTML table parsing (required for .ipynb notebook outputs)
+
+# ─── Large-file processing (optional – comment out if Java is unavailable) ────
+pyspark==3.5.1
+
+# ─── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+aiofiles==23.2.1
