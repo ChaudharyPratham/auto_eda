@@ -13,7 +13,7 @@ import pandas as pd
 
 
 # ─── Supported extensions ─────────────────────────────────────────────────────
-ALLOWED_EXTENSIONS = {".csv", ".json", ".xlsx", ".xls", ".txt", ".parquet", ".ipynb"}
+ALLOWED_EXTENSIONS = {".csv", ".json", ".xlsx", ".xls", ".txt", ".parquet", ".ipynb", ".avro"}
 
 
 def validate_file_extension(filename: str, allowed: set = None) -> bool:
@@ -72,6 +72,16 @@ def load_dataframe(file_path: str) -> pd.DataFrame:
 
     if ext == ".parquet":
         return pd.read_parquet(file_path)
+
+    if ext == ".avro":
+        try:
+            import fastavro
+        except ImportError:
+            raise RuntimeError("fastavro is required for .avro files. Run: pip install fastavro")
+        with open(file_path, "rb") as fh:
+            reader = fastavro.reader(fh)
+            records = list(reader)
+        return pd.DataFrame(records)
 
     if ext == ".ipynb":
         return _load_notebook(file_path)

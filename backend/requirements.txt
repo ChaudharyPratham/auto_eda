@@ -13,9 +13,13 @@ openpyxl==3.1.2        # Excel (.xlsx)
 pyarrow==15.0.2        # Parquet + fast CSV
 fastparquet==2024.2.0  # Alternative Parquet engine
 lxml==5.2.1            # HTML table parsing (required for .ipynb notebook outputs)
+fastavro>=1.9.0        # Apache Avro file support
 
 # ─── Large-file processing (optional – comment out if Java is unavailable) ────
 pyspark==3.5.1
+
+# ─── Image processing ────────────────────────────────────────────────────────
+Pillow>=10.0.0
 
 # ─── Utilities ────────────────────────────────────────────────────────────────
 python-dotenv==1.0.1

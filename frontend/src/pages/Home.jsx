@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import FileUpload from '../components/FileUpload'
+import FolderUpload from '../components/FolderUpload'
+import DataFolderUpload from '../components/DataFolderUpload'
 
 const FEATURES = [
   { icon: '📊', title: 'Auto Analysis', desc: 'Shape, dtypes, missing values, stats, outliers' },
@@ -13,6 +15,14 @@ export default function Home() {
 
   function handleUploadSuccess(fileData) {
     navigate(`/dashboard/${fileData.file_id}`, { state: { fileData } })
+  }
+
+  function handleImageUploadSuccess(folderData) {
+    navigate(`/image-dashboard/${folderData.folder_id}`, { state: { folderData } })
+  }
+
+  function handleDataFolderSuccess(data) {
+    navigate('/multi-dashboard', { state: { files: data.files } })
   }
 
   return (
@@ -43,9 +53,21 @@ export default function Home() {
           </p>
         </div>
 
-        {/* ── Upload card ── */}
-        <div className="w-full max-w-2xl">
+        {/* ── Upload cards ── */}
+        <div className="w-full max-w-2xl space-y-4">
           <FileUpload onSuccess={handleUploadSuccess} />
+          <div className="flex items-center gap-3 text-gray-300">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 font-medium">or upload a folder</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+          <DataFolderUpload onSuccess={handleDataFolderSuccess} />
+          <div className="flex items-center gap-3 text-gray-300">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 font-medium">or upload an image dataset</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+          <FolderUpload onSuccess={handleImageUploadSuccess} />
         </div>
 
         {/* ── Feature grid ── */}
@@ -64,7 +86,7 @@ export default function Home() {
 
         {/* ── Supported formats ── */}
         <div className="mt-8 flex flex-wrap gap-2 justify-center">
-          {['CSV', 'JSON', 'Excel (.xlsx)', 'TXT', 'Parquet', 'Jupyter (.ipynb)'].map((fmt) => (
+          {['CSV', 'JSON', 'Excel (.xlsx)', 'TXT', 'Parquet', 'Avro', 'Jupyter (.ipynb)'].map((fmt) => (
             <span
               key={fmt}
               className="px-3 py-1 bg-white border border-gray-200 text-gray-500 rounded-full text-xs font-medium"

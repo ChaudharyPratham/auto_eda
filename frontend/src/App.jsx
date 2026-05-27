@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
+import ImageDashboard from './pages/ImageDashboard'
+import MultiDashboard from './pages/MultiDashboard'
 
 function App() {
   return (
@@ -8,6 +10,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard/:fileId" element={<Dashboard />} />
+        <Route path="/image-dashboard/:folderId" element={<ImageDashboard />} />
+        <Route path="/multi-dashboard" element={<MultiDashboard />} />
       </Routes>
     </div>
   )

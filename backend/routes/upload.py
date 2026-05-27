@@ -15,7 +15,7 @@ from utils.response_utils import success_response
 
 router = APIRouter()
 
-ALLOWED_EXTENSIONS = {".csv", ".json", ".xlsx", ".xls", ".txt", ".parquet", ".ipynb"}
+ALLOWED_EXTENSIONS = {".csv", ".json", ".xlsx", ".xls", ".txt", ".parquet", ".ipynb", ".avro"}
 MAX_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "500"))
 
 
