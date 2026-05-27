@@ -59,7 +59,7 @@ export default function MultiDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-teal-600 rounded-xl flex items-center justify-center shadow-sm">
               <span className="text-white text-xs font-extrabold">EDA</span>
@@ -77,9 +77,34 @@ export default function MultiDashboard() {
         </div>
       </header>
 
-      <div className="flex flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 gap-5">
-        {/* ── File sidebar ── */}
-        <aside className="w-56 flex-shrink-0">
+      {/* Mobile: horizontal file scroller | lg+: sidebar + content side-by-side */}
+      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 lg:py-6">
+
+        {/* ── Mobile/tablet file picker (hidden on lg+) ── */}
+        <div className="lg:hidden mb-4">
+          <p className="text-xs text-gray-400 uppercase font-semibold tracking-wide mb-2">Files</p>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {files.map((f, i) => (
+              <button
+                key={f.file_id}
+                onClick={() => { setSelectedIdx(i); setActiveTab('analysis') }}
+                className={`flex-shrink-0 px-3 py-2 rounded-xl text-xs font-medium border transition-colors
+                  ${selectedIdx === i
+                    ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-teal-400'}`}
+              >
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  {extBadge(f.extension)}
+                </div>
+                <span className="block max-w-[120px] truncate" title={f.filename}>{f.filename}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-5">
+        {/* ── Desktop sidebar (hidden on mobile) ── */}
+        <aside className="hidden lg:block w-56 xl:w-64 flex-shrink-0">
           <p className="text-xs text-gray-400 uppercase font-semibold tracking-wide mb-2 px-1">Files</p>
           <ul className="space-y-1">
             {files.map((f, i) => (
@@ -119,7 +144,7 @@ export default function MultiDashboard() {
           </div>
 
           {/* Tab bar */}
-          <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200 shadow-sm mb-6 w-fit overflow-x-auto">
+          <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200 shadow-sm mb-6 overflow-x-auto">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -140,6 +165,7 @@ export default function MultiDashboard() {
           {activeTab === 'cleaning'       && <CleaningPanel      key={selected.file_id} fileId={selected.file_id} />}
           {activeTab === 'visualizations' && <VisualizationPanel key={selected.file_id} fileId={selected.file_id} />}
           {activeTab === 'download'       && <DownloadPanel      key={selected.file_id} fileId={selected.file_id} fileData={selected} />}
+        </div>
         </div>
       </div>
     </div>

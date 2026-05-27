@@ -12,6 +12,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 
 from utils.file_utils import validate_file_extension, get_file_size_mb
 from utils.response_utils import success_response
+from utils.api_key_utils import generate_and_store_key
 
 router = APIRouter()
 
@@ -57,6 +58,7 @@ async def upload_file(file: UploadFile = File(...)):
         )
 
     engine = "spark" if size_mb >= 100 else "pandas"
+    api_key = generate_and_store_key(file_id)
 
     return success_response(
         {
@@ -65,6 +67,7 @@ async def upload_file(file: UploadFile = File(...)):
             "size_mb": round(size_mb, 2),
             "extension": ext,
             "engine": engine,
+            "api_key": api_key,
         },
         message="File uploaded successfully",
     )

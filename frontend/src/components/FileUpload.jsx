@@ -38,7 +38,7 @@ export default function FileUpload({ onSuccess }) {
       <div
         {...getRootProps()}
         className={[
-          'border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer',
+          'border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer',
           'transition-all duration-200 select-none',
           isDragActive
             ? 'border-blue-500 bg-blue-50 scale-[1.01]'

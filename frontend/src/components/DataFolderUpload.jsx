@@ -16,6 +16,7 @@ export default function DataFolderUpload({ onSuccess }) {
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState(null)
   const [fileCount, setFileCount] = useState(0)
+  const [mode, setMode] = useState('separate') // 'separate' | 'combined'
 
   async function uploadFiles(rawFiles) {
     setError(null)
@@ -36,7 +37,7 @@ export default function DataFolderUpload({ onSuccess }) {
 
     try {
       const xhr = new XMLHttpRequest()
-      xhr.open('POST', '/api/multi/upload')
+      xhr.open('POST', `/api/multi/upload?mode=${mode}`)
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100))
       }
@@ -110,9 +111,59 @@ export default function DataFolderUpload({ onSuccess }) {
         <span className="text-2xl">🗂️</span>
         <div>
           <h2 className="font-bold text-gray-900 text-lg">Data Folder</h2>
-          <p className="text-gray-400 text-xs">Upload a folder of CSV, JSON, Excel, Parquet, Avro, or TXT files — they'll be merged into one dataset</p>
+          <p className="text-gray-400 text-xs">Upload a folder of CSV, JSON, Excel, Parquet, Avro, or TXT files</p>
         </div>
       </div>
+
+      {/* ── Mode picker ── */}
+      <div className="flex gap-3 mb-4">
+        {[
+          {
+            value: 'separate',
+            label: 'Analyze Separately',
+            desc: 'Each file gets its own full analysis dashboard',
+            icon: '📂',
+          },
+          {
+            value: 'combined',
+            label: 'Combine & Analyze',
+            desc: 'Schema staging → fuzzy value mapping → 3NF merge → one dataset',
+            icon: '🔗',
+          },
+        ].map((opt) => (
+          <label
+            key={opt.value}
+            className={`flex-1 flex gap-2 p-3 border-2 rounded-xl cursor-pointer transition-colors select-none
+              ${mode === opt.value
+                ? 'border-teal-500 bg-teal-50'
+                : 'border-gray-200 hover:border-teal-300'}`}
+          >
+            <input
+              type="radio"
+              name="folder-mode"
+              value={opt.value}
+              checked={mode === opt.value}
+              onChange={() => setMode(opt.value)}
+              className="mt-0.5 accent-teal-600"
+            />
+            <div>
+              <div className="text-sm font-semibold text-gray-800">{opt.icon} {opt.label}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{opt.desc}</div>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Combined mode info */}
+      {mode === 'combined' && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 space-y-0.5">
+          <p className="font-semibold">Combined pipeline steps:</p>
+          <p>① Schema normalisation (snake_case columns, type casting)</p>
+          <p>② Fuzzy value mapping (e.g. "ind / india / bharat" → "india")</p>
+          <p>③ Outer concat — no row or column dropped; corrupted cells get median/mode defaults</p>
+          <p>④ 3NF decomposition — low-cardinality columns split into dimension tables</p>
+        </div>
+      )}
 
       <div
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}

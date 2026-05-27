@@ -23,7 +23,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* ── Sticky header ── */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
           {/* Logo / back link */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
@@ -64,9 +64,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
         {/* ── Tab bar ── */}
-        <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200 shadow-sm mb-8 w-fit overflow-x-auto">
+        <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200 shadow-sm mb-6 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.key}

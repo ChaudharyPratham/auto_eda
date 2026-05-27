@@ -53,16 +53,18 @@ export const getImageDownloadUrl = (folderId) => `${BASE}/image/download/${folde
 // ── Multi-file folder API ──────────────────────────────────────────────────
 
 /**
- * Upload a folder of data files; backend combines them and returns a file_id
- * compatible with the standard analysis/cleaning/visualization pipeline.
+ * Import a file from a cloud provider.
+ * Credentials are read server-side from .env – only the URI is sent here.
  */
-export const uploadDataFolder = (files, onProgress) => {
-  const form = new FormData()
-  for (const f of files) {
-    form.append('files', f, f.webkitRelativePath || f.name)
-  }
-  return client.post('/multi/upload', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    onUploadProgress: onProgress,
+export const cloudImport = (provider, uri, containerOrBucket = null, blobOrKey = null) =>
+  client.post('/cloud/import', { provider, uri, container_or_bucket: containerOrBucket, blob_or_key: blobOrKey })
+
+/**
+ * Fetch cleaned data via API key (paginated).
+ * Pass apiKey via X-API-Key header.
+ */
+export const getExposedData = (fileId, apiKey, page = 1, pageSize = 100, columns = '') =>
+  client.get(`/data/${fileId}`, {
+    params: { page, page_size: pageSize, ...(columns ? { columns } : {}) },
+    headers: { 'X-API-Key': apiKey },
   })
-}

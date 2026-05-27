@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Plotly from 'plotly.js/dist/plotly'
 import { getVisualizations } from '../services/api'
 import Histogram     from './charts/Histogram'
 import BoxPlot       from './charts/BoxPlot'
@@ -122,15 +123,14 @@ function ChartCard({ children, title = 'chart', fullWidth = false }) {
   function handleDownload() {
     if (!cardRef.current) return
     const plotDiv = cardRef.current.querySelector('.js-plotly-plot')
-    if (plotDiv && window.Plotly) {
-      window.Plotly.downloadImage(plotDiv, {
-        format:   'png',
-        filename:  title,
-        height:    500,
-        width:     900,
-        scale:     2,      // retina quality
-      })
-    }
+    if (!plotDiv) return
+    Plotly.downloadImage(plotDiv, {
+      format:   'png',
+      filename:  title,
+      height:    500,
+      width:     900,
+      scale:     2,
+    })
   }
 
   return (

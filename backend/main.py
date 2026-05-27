@@ -8,10 +8,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routes import upload, analysis, cleaning, visualization, download, image, multi
+from routes import upload, analysis, cleaning, visualization, download, image, multi, cloud, data_api
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Initialise database (no-op when DATABASE_URL is not set)
+from db.database import init_db
+init_db()
 
 app = FastAPI(
     title="Auto EDA API",
@@ -52,6 +56,8 @@ app.include_router(visualization.router, prefix="/api", tags=["Visualization"])
 app.include_router(download.router,      prefix="/api", tags=["Download"])
 app.include_router(image.router,         prefix="/api", tags=["Image"])
 app.include_router(multi.router,         prefix="/api", tags=["Multi-File"])
+app.include_router(cloud.router,         prefix="/api", tags=["Cloud Import"])
+app.include_router(data_api.router,      prefix="/api", tags=["Data API"])
 
 
 @app.get("/")

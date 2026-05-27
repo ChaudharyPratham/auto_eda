@@ -11,6 +11,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 
 from services import image_service
+from utils.api_key_utils import generate_and_store_key
 from utils.response_utils import success_response
 
 router = APIRouter()
@@ -50,9 +51,11 @@ async def upload_image_folder(files: List[UploadFile] = File(...)):
     if saved == 0:
         raise HTTPException(status_code=400, detail="No valid image files were saved.")
 
+    api_key = generate_and_store_key(folder_id)
+
     return success_response(
         message=f"Uploaded {saved} files",
-        data={"folder_id": folder_id, "file_count": saved},
+        data={"folder_id": folder_id, "file_count": saved, "api_key": api_key},
     )
 
 

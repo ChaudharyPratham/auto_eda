@@ -10,7 +10,7 @@ export default function ImageDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-3">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-3">
           <a href="/" className="w-9 h-9 bg-purple-600 rounded-xl flex items-center justify-center shadow-sm hover:bg-purple-700 transition-colors">
             <span className="text-white text-xs font-extrabold tracking-tight">EDA</span>
           </a>
@@ -28,7 +28,7 @@ export default function ImageDashboard() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
+      <main className="flex-1 w-full max-w-screen-2xl mx-auto px-4 sm:px-8 py-6">
         <ImageAnalysisPanel folderId={folderId} />
       </main>
 
