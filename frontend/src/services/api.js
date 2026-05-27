@@ -29,6 +29,12 @@ export const cleanDataset = (fileId) => client.post(`/clean/${fileId}`)
 /** Fetch visualization data for a previously uploaded file. */
 export const getVisualizations = (fileId) => client.get(`/visualize/${fileId}`)
 
+/** Fetch column metadata (name, type, sample_values) for the chart builder. */
+export const getColumnInfo = (fileId) => client.get(`/visualize/${fileId}/columns`)
+
+/** Build a single custom chart with optional filters — used by Chart Builder. */
+export const buildCustomChart = (fileId, body) => client.post(`/visualize/${fileId}/custom`, body)
+
 /** Build the download URL for the cleaned CSV. */
 export const getCleanedDownloadUrl = (fileId) => `${BASE}/download/${fileId}/cleaned`
 

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto EDA — Interview Preparation Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563eb;
+      --dark: #0f172a;
+      --navy: #1e293b;
+      --slate: #475569;
+      --light: #f8fafc;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: #1e293b;
+      background: #f1f5f9;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 40%, #0c1f3c 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 48px;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%);
+      top: -100px; right: -100px;
+    }
+    .cover-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #60a5fa;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(96,165,250,0.3);
+      padding: 6px 20px;
+      border-radius: 30px;
+      margin-bottom: 32px;
+    }
+    .cover h1 {
+      font-size: 60px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .cover h1 span { color: #60a5fa; }
+    .cover .tagline {
+      font-size: 17px;
+      color: #94a3b8;
+      margin-bottom: 56px;
+      max-width: 580px;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+    .pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #cbd5e1;
+    }
+    .cover-footer {
+      font-size: 11px;
+      color: #334155;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 28px;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 56px 48px;
+      page-break-after: always;
+    }
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .page-h1 {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      color: var(--slate);
+      font-size: 13px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+    }
+    .toc-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .toc-num {
+      min-width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .bg1 { background: #2563eb; }
+    .bg2 { background: #7c3aed; }
+    .bg3 { background: #0f766e; }
+    .bg4 { background: #b45309; }
+    .bg5 { background: #be123c; }
+    .bg6 { background: #15803d; }
+    .bg7 { background: #1d4ed8; }
+    .toc-text .title { font-size: 14px; font-weight: 700; color: var(--dark); }
+    .toc-text .desc  { font-size: 12px; color: var(--slate); }
+
+    /* ── Page ── */
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 52px 48px;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+
+    h2 { font-size: 20px; font-weight: 700; color: var(--dark); margin: 28px 0 10px; }
+    h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin: 22px 0 8px; }
+    p  { color: #334155; margin-bottom: 10px; }
+
+    /* ── Feature cards ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .feat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .feat-icon { font-size: 22px; margin-bottom: 8px; }
+    .feat-title { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .feat-desc  { font-size: 12px; color: var(--slate); line-height: 1.5; }
+
+    /* ── Code ── */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 10px 0 16px;
+      border-left: 3px solid #3b82f6;
+      overflow-x: auto;
+    }
+    pre .c  { color: #64748b; }
+    pre .g  { color: #86efac; }
+    pre .b  { color: #93c5fd; }
+    pre .y  { color: #fbbf24; }
+    pre .p  { color: #f9a8d4; }
+
+    code {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: #1d4ed8;
+    }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12.5px; }
+    th { background: var(--dark); color: #e2e8f0; text-align: left; padding: 9px 14px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── Callout ── */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; }
+    .callout.blue   { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .callout.green  { background: #f0fdf4; border-left: 4px solid #22c55e; }
+    .callout.amber  { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .callout.purple { background: #faf5ff; border-left: 4px solid #a855f7; }
+    .cblue   .callout-title { color: #1d4ed8; font-weight: 700; margin-bottom: 2px; }
+    .cgreen  .callout-title { color: #15803d; font-weight: 700; margin-bottom: 2px; }
+    .camber  .callout-title { color: #92400e; font-weight: 700; margin-bottom: 2px; }
+    .cpurple .callout-title { color: #7e22ce; font-weight: 700; margin-bottom: 2px; }
+
+    /* ── Q&A cards ── */
+    .qa-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .qa-q {
+      background: linear-gradient(90deg, #1e3a5f, #1e293b);
+      color: white;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .qa-q .q-badge {
+      background: #2563eb;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .qa-a {
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .qa-a ul { margin-left: 20px; margin-top: 6px; }
+    .qa-a li { margin-bottom: 4px; }
+    .qa-a strong { color: var(--dark); }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .flow-box {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--dark);
+      text-align: center;
+      min-width: 90px;
+    }
+    .flow-box.blue   { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+    .flow-box.green  { background: #f0fdf4; border-color: #22c55e; color: #15803d; }
+    .flow-box.purple { background: #faf5ff; border-color: #a855f7; color: #7e22ce; }
+    .flow-box.orange { background: #fff7ed; border-color: #f97316; color: #c2410c; }
+    .flow-arrow {
+      font-size: 18px;
+      color: #94a3b8;
+      padding: 0 6px;
+    }
+    .flow-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; font-weight: 400; }
+
+    /* ── Tech stack badges ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .stack-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .stack-card .layer { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+    .stack-card .tech  { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .stack-card .why   { font-size: 11px; color: var(--slate); line-height: 1.5; }
+
+    /* ── Resume bullets ── */
+    .resume-section {
+      background: linear-gradient(135deg, #0f172a, #1e3a5f);
+      color: white;
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin: 20px 0;
+    }
+    .resume-section h3 { color: #60a5fa; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 10px; }
+    .resume-section h3:first-child { margin-top: 0; }
+    .resume-bullet {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .resume-bullet::before {
+      content: '▸';
+      color: #60a5fa;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .resume-bullet strong { color: #e2e8f0; }
+    .resume-bullet span   { color: #94a3b8; }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 24px 0; }
+
+    @media print {
+      body { background: white; }
+      .cover, pre, th, .qa-q, .resume-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cover::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Interview Preparation Guide</div>
+  <h1>Auto <span>EDA</span></h1>
+  <p class="tagline">Automated Exploratory Data Analysis — Full-Stack Project Deep Dive</p>
+
+  <div class="pill-row">
+    <div class="pill">🐍 FastAPI + Python</div>
+    <div class="pill">⚛️ React 18 + Vite</div>
+    <div class="pill">🐼 Pandas + PySpark</div>
+    <div class="pill">☁️ Azure · AWS · GCP · Databricks</div>
+    <div class="pill">🐳 Docker + nginx</div>
+    <div class="pill">📊 Plotly.js Charts</div>
+    <div class="pill">🔑 REST API with Auth</div>
+    <div class="pill">🗄️ SQLAlchemy + PostgreSQL</div>
+  </div>
+
+  <div class="cover-footer">
+    <span>github.com/ChaudharyPratham/auto_eda</span>
+    <span>Full-Stack · Data Engineering · Cloud · REST API</span>
+    <span>May 2026</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════ TOC -->
+<div class="toc">
+  <div class="eyebrow">Contents</div>
+  <div class="page-h1">What's Inside This Guide</div>
+  <p class="page-sub">Everything you need to confidently explain Auto EDA to an interviewer.</p>
+
+  <div class="toc-row">
+    <div class="toc-num bg1">1</div>
+    <div class="toc-text">
+      <div class="title">What is Auto EDA? (Elevator Pitch)</div>
+      <div class="desc">One-paragraph explanation + the problem it solves</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg2">2</div>
+    <div class="toc-text">
+      <div class="title">Features Deep Dive</div>
+      <div class="desc">Every feature explained — what it does and how it works under the hood</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg3">3</div>
+    <div class="toc-text">
+      <div class="title">Architecture & Tech Stack</div>
+      <div class="desc">System design, data flow, why each technology was chosen</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg4">4</div>
+    <div class="toc-text">
+      <div class="title">API Design & Security</div>
+      <div class="desc">REST endpoints, API key auth, CORS, SHA-256 hashing</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg5">5</div>
+    <div class="toc-text">
+      <div class="title">Interview Questions & Answers</div>
+      <div class="desc">30+ likely follow-up questions with clear, honest answers in plain English</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg6">6</div>
+    <div class="toc-text">
+      <div class="title">Challenges & How I Solved Them</div>
+      <div class="desc">Real problems faced during development — great for behavioral questions</div>
+    </div>
+  </div>
+  <div class="toc-row">
+    <div class="toc-num bg7">7</div>
+    <div class="toc-text">
+      <div class="title">Resume Bullet Points</div>
+      <div class="desc">Copy-ready impact statements for your CV / resume</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 1 — WHAT IS IT -->
+<div class="page">
+  <div class="eyebrow">Section 1</div>
+  <div class="page-h1">What is Auto EDA?</div>
+  <p class="page-sub">Your elevator pitch — practice saying this out loud in 30 seconds.</p>
+
+  <div class="callout blue cblue">
+    <div class="callout-icon">🎯</div>
+    <div>
+      <div class="callout-title">30-Second Pitch (memorise this)</div>
+      "Auto EDA is a full-stack web application I built that automates exploratory data analysis. You upload any dataset — CSV, Excel, Parquet, Avro, or even pull directly from AWS S3 or Azure — and the platform instantly gives you statistical summaries, interactive visualizations, and a smart cleaning panel that detects issues and lets you selectively fix them. It also exposes a REST API so any downstream application can access your cleaned data with an API key. It's basically a no-code data exploration tool that handles everything from raw file ingestion to a publish-ready dataset."
+    </div>
+  </div>
+
+  <h2>The Problem It Solves</h2>
+  <p>Every data project starts the same way: a data analyst spends hours writing the same pandas code — checking nulls, plotting distributions, removing duplicates, fixing column names. Auto EDA eliminates that repetitive work completely.</p>
+
+  <div class="feature-grid">
+    <div class="feat">
+      <div class="feat-icon">🐢</div>
+      <div class="feat-title">Before Auto EDA</div>
+      <div class="feat-desc">Analyst writes Python scripts every time. 2–3 hours to understand a new dataset. No standard format. Hard to share results.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">After Auto EDA</div>
+      <div class="feat-desc">Upload and get full analysis in seconds. Share via REST API. Reproducible cleaning pipeline. Works for any file format.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">👥</div>
+      <div class="feat-title">Who uses it</div>
+      <div class="feat-desc">Data analysts, data scientists, ML engineers, business analysts — anyone who needs to quickly understand a dataset.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🏗️</div>
+      <div class="feat-title">What I built</div>
+      <div class="feat-desc">Full-stack: React frontend + FastAPI backend + Pandas/PySpark processing + 4-provider cloud import + Docker deployment.</div>
+    </div>
+  </div>
+
+  <h2>Key Numbers</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Supported file formats</td><td>CSV, JSON, Excel (.xlsx/.xls), TXT, Parquet, Avro, Jupyter Notebook (.ipynb)</td></tr>
+      <tr><td>Cloud providers</td><td>Azure Blob Storage, AWS S3, GCP Cloud Storage, Databricks DBFS</td></tr>
+      <tr><td>Max upload size</td><td>500 MB (configurable)</td></tr>
+      <tr><td>Processing engines</td><td>Pandas (&lt;100 MB) · PySpark (≥100 MB, auto-switched)</td></tr>
+      <tr><td>Chart types</td><td>Histogram, Box Plot, Bar Chart, Pie Chart, Scatter Plot, Correlation Heatmap</td></tr>
+      <tr><td>API routes</td><td>~25 REST endpoints across 9 route modules</td></tr>
+      <tr><td>Frontend pages</td><td>4 (Home, Dashboard, Multi-Dashboard, Image Dashboard)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 2 — FEATURES -->
+<div class="page">
+  <div class="eyebrow">Section 2</div>
+  <div class="page-h1">Features Deep Dive</div>
+  <p class="page-sub">What each feature does and how it works technically.</p>
+
+  <h2>1. File Ingestion</h2>
+  <p>Files are uploaded via drag-and-drop (react-dropzone). The backend receives the multipart form data, saves the file to <code>uploads/</code> with a UUID filename, and detects the format by file extension.</p>
+  <table>
+    <thead><tr><th>Format</th><th>Library Used</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>CSV / TXT</td><td>pandas.read_csv()</td><td>Auto-detects delimiter</td></tr>
+      <tr><td>JSON</td><td>pandas.read_json()</td><td>Handles nested JSON</td></tr>
+      <tr><td>Excel (.xlsx/.xls)</td><td>openpyxl / xlrd</td><td>Reads first sheet by default</td></tr>
+      <tr><td>Parquet</td><td>pyarrow / fastparquet</td><td>Column-oriented, very fast</td></tr>
+      <tr><td>Avro</td><td>fastavro</td><td>Reads schema + records</td></tr>
+      <tr><td>Jupyter (.ipynb)</td><td>lxml + pandas</td><td>Extracts DataFrame outputs from cell outputs</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Statistical Analysis</h2>
+  <p>The analysis service runs on the loaded DataFrame and computes:</p>
+  <pre><span class="g">shape</span>          → row count, column count
+<span class="g">dtypes</span>         → data type per column (int, float, object, datetime)
+<span class="g">missing</span>        → count and % of nulls per column
+<span class="g">duplicates</span>     → total duplicate rows
+<span class="g">describe()</span>     → mean, std, min, 25%, 50%, 75%, max for numeric columns
+<span class="g">corr()</span>         → Pearson correlation matrix
+<span class="g">IQR outliers</span>   → values outside Q1 - 1.5×IQR or Q3 + 1.5×IQR per column</pre>
+
+  <h2>3. Selective Cleaning (Key Feature)</h2>
+  <p>Unlike "clean everything" tools, Auto EDA <strong>scans first, then asks</strong>. The cleaning flow has two steps:</p>
+
+  <div class="flow">
+    <div class="flow-box blue">GET /clean/{id}/options<div class="flow-sub">scan dataset</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box green">Checklist UI<div class="flow-sub">user selects</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box purple">POST /clean/{id}<div class="flow-sub">selected ops only</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box orange">Cleaned CSV<div class="flow-sub">saved to disk</div></div>
+  </div>
+
+  <p><strong>Operation IDs returned by the scan:</strong></p>
+  <pre><span class="b">remove_duplicates</span>           <span class="c"># if duplicates found</span>
+<span class="b">fill_missing__col_name</span>      <span class="c"># one entry per column with nulls</span>
+<span class="b">standardize_columns</span>         <span class="c"># rename to snake_case</span>
+<span class="b">convert_numeric__col_name</span>   <span class="c"># if column looks numeric but stored as text</span>
+<span class="b">drop_outliers__col_name</span>     <span class="c"># IQR-based removal per column</span></pre>
+
+  <p>Each operation has a <strong>severity</strong>: 🔴 error (&gt;10% affected), 🟡 warning (moderate), 🔵 info (minor).</p>
+
+  <h2>4. Visualizations</h2>
+  <p>Charts are generated server-side from the data and returned as JSON configs. The frontend renders them with <strong>Plotly.js</strong>. Each chart has a PNG download button that uses <code>Plotly.downloadImage()</code> at 2× retina resolution.</p>
+
+  <h2>5. Multi-File Folder Upload</h2>
+  <p>Two modes:</p>
+  <table>
+    <thead><tr><th>Mode</th><th>How it works</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Separate</strong></td>
+        <td>Each file gets its own dashboard tab. Files are processed independently.</td>
+      </tr>
+      <tr>
+        <td><strong>Combined</strong></td>
+        <td>Schema normalization → fuzzy deduplication (rapidFuzz) → merge into one DataFrame. Routed to the normal single-file Dashboard.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>6. Cloud Import (Single File + Full Folder)</h2>
+  <p>Users paste a URI and select a provider. The backend downloads the file(s) using the corresponding SDK (credentials from <code>.env</code>), saves to <code>uploads/</code>, and routes exactly like a local upload. Folder imports list all blobs/objects under a prefix and download all of them.</p>
+
+  <h2>7. Data API with API Key Auth</h2>
+  <p>After cleaning, users can generate a per-dataset API key. The key is shown once, then only its SHA-256 hash is stored. External apps can then call:</p>
+  <pre>GET /api/data/<span class="b">{file_id}</span>?page=1&page_size=100
+Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></pre>
+
+  <h2>8. Image Dataset Analysis</h2>
+  <p>Upload a folder of images (PNG/JPG/BMP/WebP). The backend uses Pillow to detect: image count per class (folder), resolution stats, corrupted files, and duplicate images (via pixel hash). Outputs a clean ZIP download of valid images.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 3 — ARCHITECTURE -->
+<div class="page">
+  <div class="eyebrow">Section 3</div>
+  <div class="page-h1">Architecture &amp; Tech Stack</div>
+  <p class="page-sub">System design and why each technology was chosen.</p>
+
+  <h2>System Architecture</h2>
+
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:8px;">
+    <div style="display:flex; align-items:center; gap:8px; width:100%;">
+      <div class="flow-box blue" style="min-width:160px;">Browser (React + Vite)<div class="flow-sub">localhost:5173 (dev) / :80 (prod)</div></div>
+      <div class="flow-arrow">→ HTTP /api/* →</div>
+      <div class="flow-box green" style="min-width:160px;">FastAPI Backend<div class="flow-sub">localhost:8000</div></div>
+      <div class="flow-arrow">→ reads/writes →</div>
+      <div class="flow-box purple" style="min-width:160px;">uploads/ cleaned/ reports/<div class="flow-sub">local filesystem</div></div>
+    </div>
+    <div style="margin-left: 176px; color: #64748b; font-size:12px;">↓ Vite proxy (dev) / nginx proxy_pass (prod)</div>
+    <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
+      <div class="flow-box orange" style="min-width:160px;">PostgreSQL DB<div class="flow-sub">optional metadata</div></div>
+      <div class="flow-arrow">←→</div>
+      <div class="flow-box" style="min-width:160px;">Cloud SDKs<div class="flow-sub">Azure/AWS/GCP/Databricks</div></div>
+    </div>
+  </div>
+
+  <h2>Why These Technologies?</h2>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="layer">Frontend</div>
+      <div class="tech">React 18 + Vite</div>
+      <div class="why">React for component-based UI. Vite for blazing-fast HMR and build. Much faster than CRA.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Styling</div>
+      <div class="tech">Tailwind CSS</div>
+      <div class="why">Utility-first — no CSS files to maintain. Responsive breakpoints built in. Consistent design system.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Charts</div>
+      <div class="tech">Plotly.js</div>
+      <div class="why">Interactive, supports 40+ chart types, has built-in PNG download, works great with React.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Backend</div>
+      <div class="tech">FastAPI</div>
+      <div class="why">Async Python, automatic OpenAPI/Swagger docs, Pydantic validation, much faster than Flask.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Data Processing</div>
+      <div class="tech">Pandas + PySpark</div>
+      <div class="why">Pandas for files under 100 MB. PySpark for large files — auto-switched based on file size.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Database</div>
+      <div class="tech">SQLAlchemy + PostgreSQL</div>
+      <div class="why">ORM for clean code. PostgreSQL for production. Graceful no-op if DATABASE_URL is not set.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Deployment</div>
+      <div class="tech">Docker + nginx</div>
+      <div class="why">Docker ensures consistent environment on any machine. nginx serves static React build and proxies API calls.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Fuzzy Match</div>
+      <div class="tech">rapidFuzz</div>
+      <div class="why">Fast C++ implementation of Levenshtein/token ratio for fuzzy deduplication of combined datasets.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Image</div>
+      <div class="tech">Pillow (PIL)</div>
+      <div class="why">Standard Python image library. Used for reading image metadata, detecting corruptions, computing pixel hashes.</div>
+    </div>
+  </div>
+
+  <h2>Request Lifecycle (Single File Upload)</h2>
+  <pre><span class="c">1.</span> User drags CSV onto React dropzone
+<span class="c">2.</span> <span class="g">POST /api/upload</span>         → multipart/form-data → FastAPI
+<span class="c">3.</span> Backend saves file as <span class="b">uploads/{uuid}.csv</span>
+<span class="c">4.</span> Returns <span class="b">file_id</span> in JSON response
+<span class="c">5.</span> React navigates to <span class="b">/dashboard/{file_id}</span>
+<span class="c">6.</span> Dashboard fetches <span class="g">GET /api/analysis/{file_id}</span>
+<span class="c">7.</span> Backend loads file → runs Pandas analysis → returns JSON
+<span class="c">8.</span> React renders stats, chart configs returned by <span class="g">GET /api/visualize/{file_id}</span>
+<span class="c">9.</span> User clicks Cleaning tab → <span class="g">GET /api/clean/{file_id}/options</span>
+<span class="c">10.</span> User selects ops → <span class="g">POST /api/clean/{file_id}</span> with <span class="b">{"selected": ["remove_duplicates", ...]}</span>
+<span class="c">11.</span> Cleaned file saved to <span class="b">cleaned/{file_id}.csv</span>
+<span class="c">12.</span> User downloads via <span class="g">GET /api/download/{file_id}/cleaned</span></pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 4 — API & SECURITY -->
+<div class="page">
+  <div class="eyebrow">Section 4</div>
+  <div class="page-h1">API Design &amp; Security</div>
+  <p class="page-sub">REST endpoints, authentication, and security considerations.</p>
+
+  <h2>Complete API Endpoint Map</h2>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td>/api/upload</td><td>Upload a single file</td></tr>
+      <tr><td>POST</td><td>/api/multi/upload?mode=</td><td>Upload a folder (separate or combined mode)</td></tr>
+      <tr><td>POST</td><td>/api/image/upload</td><td>Upload an image folder</td></tr>
+      <tr><td>POST</td><td>/api/cloud/import</td><td>Import from Azure/AWS/GCP/Databricks</td></tr>
+      <tr><td>GET</td><td>/api/analysis/{file_id}</td><td>Get statistical analysis</td></tr>
+      <tr><td>GET</td><td>/api/visualize/{file_id}</td><td>Get chart data (Plotly configs)</td></tr>
+      <tr><td>GET</td><td>/api/clean/{file_id}/options</td><td>Get detected cleaning issues</td></tr>
+      <tr><td>POST</td><td>/api/clean/{file_id}</td><td>Apply selected cleaning operations</td></tr>
+      <tr><td>GET</td><td>/api/download/{file_id}/cleaned</td><td>Download cleaned CSV</td></tr>
+      <tr><td>GET</td><td>/api/download/{file_id}/report</td><td>Download report JSON</td></tr>
+      <tr><td>GET</td><td>/api/data/{file_id}</td><td>Paginated data access (requires X-API-Key)</td></tr>
+      <tr><td>GET</td><td>/api/data/{file_id}/schema</td><td>Column names and types</td></tr>
+      <tr><td>POST</td><td>/api/key/{file_id}/regenerate</td><td>Rotate the API key</td></tr>
+    </tbody>
+  </table>
+
+  <h2>API Key Security</h2>
+  <p>When a user clicks "Generate API Key":</p>
+  <pre><span class="c"># 1. Generate a cryptographically random key</span>
+<span class="g">raw_key</span> = secrets.token_urlsafe(32)   <span class="c"># e.g. "sk_abc123..."</span>
+
+<span class="c"># 2. Hash it before storing</span>
+<span class="g">key_hash</span> = hashlib.sha256(raw_key.encode()).hexdigest()
+
+<span class="c"># 3. Store only the hash (in uploads/.keys/{file_id}.key)</span>
+<span class="c"># 4. Return the raw key to the user ONCE — never stored in plain text</span>
+
+<span class="c"># On each API request:</span>
+<span class="g">incoming_hash</span> = hashlib.sha256(x_api_key.encode()).hexdigest()
+<span class="b">if</span> incoming_hash != stored_hash:
+    <span class="y">raise HTTPException(401, "Invalid API key")</span></pre>
+
+  <div class="callout purple cpurple">
+    <div class="callout-icon">🔐</div>
+    <div>
+      <div class="callout-title">Why SHA-256 hashing?</div>
+      Even if someone gains access to the server filesystem, they only see hashes — they cannot recover the original API keys. This follows the same pattern used by GitHub and npm for their tokens.
+    </div>
+  </div>
+
+  <h2>CORS Configuration</h2>
+  <p>Cross-Origin Resource Sharing is configured in <code>main.py</code> using FastAPI's <code>CORSMiddleware</code>. Origins are read from <code>ALLOWED_ORIGINS</code> in <code>.env</code> — so in production you add only your actual frontend domain, not <code>*</code>.</p>
+
+  <h2>Input Validation</h2>
+  <ul style="margin-left:20px; color:#334155; font-size:13px;">
+    <li style="margin-bottom:6px;">All request bodies are validated with <strong>Pydantic models</strong> — invalid data returns 422 Unprocessable Entity automatically</li>
+    <li style="margin-bottom:6px;">File extension is checked before processing — only known formats accepted</li>
+    <li style="margin-bottom:6px;">File size is checked against <code>MAX_UPLOAD_SIZE_MB</code> before saving</li>
+    <li style="margin-bottom:6px;">Cloud URIs are parsed and validated before any SDK call is made</li>
+    <li>UUID file IDs prevent path traversal attacks — files are always accessed as <code>uploads/{uuid}.ext</code></li>
+  </ul>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 5 — Q&A -->
+<div class="page">
+  <div class="eyebrow">Section 5</div>
+  <div class="page-h1">Interview Questions &amp; Answers</div>
+  <p class="page-sub">30+ likely follow-up questions with honest, easy-to-understand answers.</p>
+
+  <h2 style="color:#1d4ed8;">About the Project</h2>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q1</span> Why did you build this project?</div>
+    <div class="qa-a">I wanted to build something end-to-end that combines data engineering with web development. Every data scientist I know wastes hours writing the same "first look at data" code — nulls, dtypes, distributions. I wanted to automate that completely, and also learn FastAPI, React, and Docker in a real project rather than a tutorial.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q2</span> Walk me through what happens when a user uploads a file.</div>
+    <div class="qa-a">
+      <ol style="margin-left:20px;">
+        <li>User drags a file onto the React dropzone component</li>
+        <li>Frontend sends a <code>POST /api/upload</code> request with the file as multipart form data</li>
+        <li>FastAPI saves the file to <code>uploads/</code> with a UUID as filename to avoid conflicts</li>
+        <li>The upload route returns a <code>file_id</code> and some metadata</li>
+        <li>React immediately navigates to <code>/dashboard/{file_id}</code></li>
+        <li>The dashboard makes a <code>GET /api/analysis/{file_id}</code> call to get stats</li>
+        <li>The backend loads the file with the appropriate pandas reader and computes all statistics</li>
+        <li>Results are returned as JSON and rendered in the UI</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q3</span> What is the difference between the "Separate" and "Combined" folder modes?</div>
+    <div class="qa-a"><strong>Separate mode:</strong> Every file is processed independently and gets its own tab in the Multi-Dashboard. Good when the files are completely different datasets.<br/><br/><strong>Combined mode:</strong> The backend tries to merge all files into one dataset. First it normalizes column names (lowercase, snake_case), then uses fuzzy string matching with rapidFuzz to find columns that are the same concept but spelled differently (like "customer_name" vs "CustomerName"), then concatenates everything. Good when you have monthly files of the same data structure.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q4</span> How does the selective cleaning work?</div>
+    <div class="qa-a">There are two API calls involved. First, <code>GET /api/clean/{file_id}/options</code> scans the dataset and returns a list of detected issues — each issue has an ID, a label, and a severity level (error/warning/info). The frontend shows these as a checklist. The user checks only what they want to fix, then clicks Apply. The second call <code>POST /api/clean/{file_id}</code> receives the selected operation IDs in the request body and applies only those operations. So if you only want to remove duplicates and fill missing values in one column, you can do exactly that.</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="eyebrow">Section 5 (continued)</div>
+  <div class="page-h1">Interview Questions &amp; Answers</div>
+  <p class="page-sub">Technical deep-dive questions.</p>
+
+  <h2 style="color:#1d4ed8;">Technical Questions</h2>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q5</span> Why FastAPI instead of Flask or Django?</div>
+    <div class="qa-a">Three main reasons: <strong>(1) Speed</strong> — FastAPI is one of the fastest Python frameworks, comparable to Node.js, because it's built on Starlette which uses async I/O. <strong>(2) Automatic docs</strong> — it generates a Swagger UI at <code>/docs</code> automatically from my code, which is great for development and sharing. <strong>(3) Pydantic</strong> — all request/response bodies are validated automatically with type hints, so I get input validation for free without writing extra code.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q6</span> Why do you use PySpark for large files? Couldn't Pandas handle it?</div>
+    <div class="qa-a">Pandas loads the entire file into RAM as a DataFrame. A 500 MB CSV might expand to 2–3 GB in memory because of Python's object overhead. On a machine with 8 GB RAM, that can cause an OOM (out of memory) crash. PySpark processes data in chunks (partitions) and can spill to disk when needed, so it can handle files that are much larger than available RAM. I auto-switch at 100 MB — below that Pandas is faster because there's no JVM startup overhead.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q7</span> How do you handle file storage? Did you consider a database for files?</div>
+    <div class="qa-a">Files are stored on the local filesystem in <code>uploads/</code>, <code>cleaned/</code>, and <code>reports/</code> directories. I intentionally avoided storing binary data in a database because it's much slower and makes the DB grow huge. The UUID filename acts as the primary key. For production at scale, the right upgrade would be to store files in object storage like AWS S3 or Azure Blob and just store the URL in the database — that's actually what Docker volumes enable even now, by mounting those folders as volumes outside the container.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q8</span> How does the API key authentication work?</div>
+    <div class="qa-a">When a user generates an API key, I use Python's <code>secrets.token_urlsafe(32)</code> to generate a cryptographically random key. I then compute its SHA-256 hash and store <strong>only the hash</strong> to disk. The raw key is shown to the user once and never stored. When an API request comes in with the key in the <code>X-API-Key</code> header, I hash the incoming key and compare it to the stored hash. This means even if an attacker reads the server's file system, they can't recover any API keys.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q9</span> Why does the Plotly import use <code>plotly.js/dist/plotly</code> instead of just <code>plotly.js</code>?</div>
+    <div class="qa-a">This was an actual bug I hit during development. <code>import Plotly from 'plotly.js'</code> imports the raw source, which has a dependency on Node.js's <code>buffer</code> module that doesn't exist in the browser. Vite's bundler throws a "Cannot resolve 'buffer/'" error. The fix is to import from <code>plotly.js/dist/plotly</code> — the pre-bundled browser build that has no Node.js dependencies.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q10</span> How does cloud import work under the hood?</div>
+    <div class="qa-a">The user pastes a URI (like <code>s3://my-bucket/data/sales.csv</code>) and selects the provider. The React component sends a POST to <code>/api/cloud/import</code> with the provider name, URI, and import type (file or folder). The backend parses the URI to extract bucket and key/prefix, then calls the appropriate SDK — boto3 for AWS, azure-storage-blob for Azure, google-cloud-storage for GCP, databricks-sdk for Databricks. The file is downloaded to the local <code>uploads/</code> folder with a new UUID name and then processed exactly like a local upload. Credentials are read from <code>.env</code> and never exposed to the frontend.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q11</span> Why Docker? What does the docker-compose.yml set up?</div>
+    <div class="qa-a">Docker solves the "works on my machine" problem. The docker-compose.yml defines two services: the <strong>backend</strong> (Python 3.11 slim + Java for PySpark, runs uvicorn on port 8000) and the <strong>frontend</strong> (a multi-stage build: Node builds the React app, then nginx serves the static files on port 80 and proxies <code>/api/*</code> requests to the backend). Volumes are mounted for <code>uploads/</code>, <code>cleaned/</code>, and <code>reports/</code> so data persists even if the containers restart.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q12</span> What is CORS and why is it needed here?</div>
+    <div class="qa-a">CORS (Cross-Origin Resource Sharing) is a browser security feature. When the React app at <code>localhost:5173</code> tries to call the FastAPI backend at <code>localhost:8000</code>, the browser blocks it because they're on different ports (different "origins"). CORS middleware on the backend tells the browser "yes, requests from localhost:5173 are allowed." In production I would restrict <code>ALLOWED_ORIGINS</code> to only the actual frontend domain — never use <code>*</code> (allow all) in production.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q13</span> How does the multi-stage Docker build for the frontend work?</div>
+    <div class="qa-a">Stage 1 (build): Uses a Node.js image, copies the source, runs <code>npm ci && npm run build</code>. This produces a <code>dist/</code> folder with just HTML, CSS, and JS — no Node.js runtime needed. Stage 2 (serve): Uses a lightweight nginx image, copies only the <code>dist/</code> folder from Stage 1. The final image is tiny (≈25 MB) because it doesn't include Node.js or node_modules. nginx also has a config that proxies <code>/api/*</code> to the backend container.</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="eyebrow">Section 5 (continued)</div>
+  <div class="page-h1">Interview Questions &amp; Answers</div>
+  <p class="page-sub">Data, design, and behavioral questions.</p>
+
+  <h2 style="color:#1d4ed8;">Data &amp; Design Questions</h2>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q14</span> How do you detect outliers?</div>
+    <div class="qa-a">I use the <strong>IQR (Interquartile Range) method</strong>. For each numeric column: calculate Q1 (25th percentile) and Q3 (75th percentile), then IQR = Q3 - Q1. Any value below <code>Q1 - 1.5 × IQR</code> or above <code>Q3 + 1.5 × IQR</code> is flagged as an outlier. This method is robust because it's based on percentiles and not affected by the outliers themselves. I chose it over Z-score because Z-score assumes a normal distribution, while IQR works for any distribution.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q15</span> How do you fill missing values?</div>
+    <div class="qa-a">The strategy depends on the column type. For <strong>numeric columns</strong>, I fill with the column median (more robust than mean because it's not skewed by outliers). For <strong>categorical/text columns</strong>, I fill with the string "Unknown". This is exposed as a cleaning option per column — the user can choose to apply it or skip it for any specific column.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q16</span> What would you do differently if you had to scale this to 100,000 users?</div>
+    <div class="qa-a">Several things: <strong>(1) File storage</strong> — move to S3/Azure Blob instead of local disk. <strong>(2) Processing</strong> — use a task queue like Celery + Redis so large file processing happens in the background and doesn't block HTTP requests. <strong>(3) Database</strong> — move from optional PostgreSQL to a required one for all metadata. <strong>(4) Caching</strong> — cache analysis results in Redis since the same file's stats don't change. <strong>(5) Horizontal scaling</strong> — the backend would need to be stateless (no local files) to run multiple instances behind a load balancer.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q17</span> How does fuzzy deduplication work in combined mode?</div>
+    <div class="qa-a">When merging multiple files, column names might be slightly different — "CustomerName", "customer_name", "cust_name" all mean the same thing. I use <strong>rapidFuzz</strong> (a fast implementation of fuzzy string matching) to compute similarity ratios between column names across files. If two column names have a similarity above a threshold (e.g., 85%), they're treated as the same column. This handles real-world messy data where different people named columns slightly differently.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q18</span> What is the Database used for? The app seems to work without it.</div>
+    <div class="qa-a">Exactly — the database is optional and stores only <strong>metadata</strong> (not the files themselves): file ID, original filename, upload source, file format, file size, and upload timestamp. This lets you build features like an upload history page or search past uploads. Without it, the app is fully functional but stateless — if you restart the server, you lose track of which file IDs exist (though the files themselves are still on disk).</div>
+  </div>
+
+  <h2 style="color:#1d4ed8;">Behavioral Questions</h2>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q19</span> What was the hardest bug you fixed?</div>
+    <div class="qa-a">The Plotly build error was tricky. The frontend built fine in development but failed with "Cannot resolve 'buffer/'" when I ran <code>npm run build</code>. After debugging I traced it to the Plotly import — <code>import Plotly from 'plotly.js'</code> imports the source code which has a Node.js dependency. The fix was switching to <code>plotly.js/dist/plotly</code> (the pre-built browser bundle). I learned that for browser-targeted libraries you always want the <code>dist</code> build, not the source.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q20</span> What would you add next to improve this project?</div>
+    <div class="qa-a">A few things I'd prioritize: <strong>(1) Async processing</strong> — use Celery so large files don't timeout the HTTP request. <strong>(2) User accounts</strong> — OAuth login so users can access their upload history. <strong>(3) AI suggestions</strong> — use an LLM to describe what patterns it sees in the data in plain English. <strong>(4) Data versioning</strong> — track cleaning history so you can undo/redo. <strong>(5) Export to more formats</strong> — not just cleaned CSV, but also Parquet or directly push to a database table.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q21</span> How did you make the UI responsive?</div>
+    <div class="qa-a">I used Tailwind CSS's responsive prefixes. The home page is a two-column layout on desktop (<code>lg:grid-cols-2</code>) and single-column on mobile. The multi-file dashboard has a sidebar on desktop and a horizontal scroll file picker on mobile (hidden with <code>hidden lg:block</code>). All dashboards use <code>max-w-screen-2xl</code> to fill wide monitors. The tab bars use <code>overflow-x-auto</code> so they scroll horizontally on small screens instead of wrapping badly.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q22</span> How would you add user authentication to this project?</div>
+    <div class="qa-a">I'd add a <code>/auth</code> route with <code>POST /auth/register</code> and <code>POST /auth/login</code>. Login would return a JWT (JSON Web Token) signed with a secret key. The frontend stores the JWT in memory (or localStorage) and sends it as an <code>Authorization: Bearer {token}</code> header on every request. FastAPI's <code>Depends</code> system would extract and verify the JWT on each protected route. Each uploaded file would be linked to a user ID so users only see their own data.</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 6 — CHALLENGES -->
+<div class="page">
+  <div class="eyebrow">Section 6</div>
+  <div class="page-h1">Challenges &amp; How I Solved Them</div>
+  <p class="page-sub">Real problems faced during development — perfect for "tell me about a challenge" behavioral questions.</p>
+
+  <table>
+    <thead>
+      <tr><th>Challenge</th><th>What happened</th><th>How I fixed it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Plotly build error</strong></td>
+        <td>Vite threw "Cannot resolve 'buffer/'" on production build even though dev worked</td>
+        <td>Traced to wrong Plotly import path. Changed <code>'plotly.js'</code> → <code>'plotly.js/dist/plotly'</code></td>
+      </tr>
+      <tr>
+        <td><strong>PNG download button broken</strong></td>
+        <td><code>window.Plotly</code> was undefined in module code — <code>downloadImage()</code> failed silently</td>
+        <td>Imported Plotly directly: <code>import Plotly from 'plotly.js/dist/plotly'</code> and called <code>Plotly.downloadImage()</code></td>
+      </tr>
+      <tr>
+        <td><strong>CleaningPanel syntax error</strong></td>
+        <td>"return outside of function" — leftover code from a previous version was still in the file after a partial edit</td>
+        <td>Read the full file, found the dangling code block after the new component, removed it</td>
+      </tr>
+      <tr>
+        <td><strong>Uvicorn module not found</strong></td>
+        <td>Running <code>uvicorn main:app</code> from project root failed because Python couldn't find <code>main.py</code></td>
+        <td>Must always run from inside <code>backend/</code> directory. Documented this clearly.</td>
+      </tr>
+      <tr>
+        <td><strong>Missing closing div in DownloadPanel</strong></td>
+        <td>After a replace operation, the API key card was missing its opening <code>&lt;div</code> tag, breaking the JSX parse</td>
+        <td>Carefully re-read the component structure and restored the missing tag</td>
+      </tr>
+      <tr>
+        <td><strong>Large file memory crash</strong></td>
+        <td>A 300 MB CSV caused the backend to run out of memory and crash</td>
+        <td>Implemented the PySpark fallback — files ≥ 100 MB are auto-routed to PySpark which processes data in partitions</td>
+      </tr>
+      <tr>
+        <td><strong>CORS in production Docker</strong></td>
+        <td>API calls failed in Docker because ALLOWED_ORIGINS still listed <code>localhost:5173</code> (dev URL)</td>
+        <td>Updated docker-compose.yml to pass <code>ALLOWED_ORIGINS=http://localhost,http://localhost:80</code></td>
+      </tr>
+      <tr>
+        <td><strong>Avro reading</strong></td>
+        <td>Standard Pandas can't read Avro files natively</td>
+        <td>Added <code>fastavro</code> library — reads schema and records, converts to DataFrame</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout amber camber">
+    <div class="callout-icon">💡</div>
+    <div>
+      <div class="callout-title">Tip for behavioral answers</div>
+      When asked "tell me about a challenge," use the <strong>STAR format</strong>: Situation (what was happening), Task (what you needed to fix), Action (exactly what you did), Result (what improved). Pick the Plotly build error or the memory crash — they have the clearest cause → fix → learning arc.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ SECTION 7 — RESUME -->
+<div class="page">
+  <div class="eyebrow">Section 7</div>
+  <div class="page-h1">Resume Bullet Points</div>
+  <p class="page-sub">Copy these into your CV. Each bullet follows the <strong>Action → Technology → Impact</strong> format that ATS systems and recruiters respond to best.</p>
+
+  <div class="resume-section">
+    <h3>Project Title Line</h3>
+    <div class="resume-bullet">
+      <strong>Auto EDA</strong> <span>— Automated Exploratory Data Analysis Platform &nbsp;|&nbsp; Python · React · Docker · Cloud &nbsp;|&nbsp; github.com/ChaudharyPratham/auto_eda</span>
+    </div>
+
+    <h3>Backend &amp; API</h3>
+    <div class="resume-bullet">
+      <strong>Built a full-stack data analysis platform</strong> <span>using FastAPI and React 18, enabling no-code exploratory data analysis for CSV, JSON, Excel, Parquet, Avro, and Jupyter Notebook formats</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Designed and implemented 25+ REST API endpoints</strong> <span>across 9 route modules (upload, analysis, cleaning, visualization, download, multi-file, image, cloud, data API) with Pydantic request validation and Swagger auto-documentation</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Implemented per-dataset API key authentication</strong> <span>using SHA-256 hashing (Python secrets module) — keys stored as hashes, never in plain text, following industry security best practices</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Integrated auto-scaling processing pipeline</strong> <span>that routes files under 100 MB to Pandas and files ≥ 100 MB to PySpark local mode, preventing OOM crashes on large datasets</span>
+    </div>
+
+    <h3>Data Engineering</h3>
+    <div class="resume-bullet">
+      <strong>Built selective data cleaning pipeline</strong> <span>that scans datasets for issues (duplicates, nulls, type mismatches, outliers using IQR method) and presents a severity-ranked checklist — users apply only chosen operations</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Implemented multi-file schema normalization and fuzzy deduplication</strong> <span>using rapidFuzz (Levenshtein/token ratio) to merge datasets with inconsistent column naming conventions</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Integrated 4-provider cloud import</strong> <span>(Azure Blob Storage, AWS S3, GCP Cloud Storage, Databricks DBFS) supporting both single-file and full folder/prefix downloads, with credentials isolated to server-side .env</span>
+    </div>
+
+    <h3>Frontend &amp; Visualization</h3>
+    <div class="resume-bullet">
+      <strong>Developed responsive React frontend</strong> <span>with 4 pages and 10+ reusable components, using Tailwind CSS responsive grid (mobile-first) and react-router-dom v6 for SPA navigation</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Built interactive visualization dashboard</strong> <span>with 6 Plotly.js chart types (histogram, box plot, bar, pie, scatter, heatmap) including 2× retina-quality PNG export via Plotly.downloadImage()</span>
+    </div>
+
+    <h3>DevOps &amp; Deployment</h3>
+    <div class="resume-bullet">
+      <strong>Containerised full-stack application</strong> <span>using Docker Compose with multi-stage frontend build (Node → nginx) and Python 3.11 backend with Java/PySpark support — deployable with single <code>docker compose up --build</code> command</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Configured nginx reverse proxy</strong> <span>to serve React static build on port 80 and forward /api/* requests to FastAPI backend, with SQLAlchemy + PostgreSQL metadata storage (optional, graceful fallback)</span>
+    </div>
+  </div>
+
+  <h2>Skills to List on Resume (from this project)</h2>
+  <table>
+    <thead><tr><th>Category</th><th>Technologies / Skills</th></tr></thead>
+    <tbody>
+      <tr><td>Languages</td><td>Python 3.11, JavaScript (ES2022), SQL</td></tr>
+      <tr><td>Backend</td><td>FastAPI, Uvicorn, Pydantic, SQLAlchemy, REST API design</td></tr>
+      <tr><td>Data</td><td>Pandas, NumPy, PySpark, Parquet, Avro, ETL, Data Cleaning, EDA</td></tr>
+      <tr><td>Frontend</td><td>React 18, Vite, Tailwind CSS, Plotly.js, react-router-dom</td></tr>
+      <tr><td>Cloud</td><td>Azure Blob Storage, AWS S3 (boto3), GCP Cloud Storage, Databricks</td></tr>
+      <tr><td>DevOps</td><td>Docker, Docker Compose, nginx, multi-stage builds</td></tr>
+      <tr><td>Security</td><td>SHA-256 hashing, CORS configuration, API key auth, input validation</td></tr>
+      <tr><td>Database</td><td>PostgreSQL, SQLAlchemy ORM</td></tr>
+      <tr><td>Tools</td><td>Git, Swagger/OpenAPI, Postman, VS Code</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green cgreen">
+    <div class="callout-icon">✅</div>
+    <div>
+      <div class="callout-title">ATS tip</div>
+      Include the words "FastAPI", "Docker", "PySpark", "REST API", "AWS S3", "React" explicitly in your resume — these are the exact keywords that Applicant Tracking Systems scan for in data engineering and full-stack roles.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
