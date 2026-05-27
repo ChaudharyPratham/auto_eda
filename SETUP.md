@@ -1,6 +1,316 @@
 # Auto EDA – Setup Guide
 
-Step-by-step instructions for running this project locally on any machine (Windows, macOS, Linux).
+Step-by-step instructions for running this project locally on Windows, macOS, or Linux.
+
+---
+
+## Prerequisites
+
+| Tool | Version | Download |
+|------|---------|----------|
+| Python | 3.11 or newer | https://www.python.org/downloads/ |
+| Node.js | 18 or newer | https://nodejs.org/ |
+| Git | Any recent | https://git-scm.com/ |
+| Java JDK *(optional)* | 11 or 17 | https://adoptium.net/ — only for files ≥ 100 MB (PySpark) |
+
+Verify: `python --version`, `node --version`, `git --version`
+
+---
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/ChaudharyPratham/auto_eda.git
+cd "auto eda"
+```
+
+---
+
+## 2. Backend Setup (FastAPI)
+
+### 2a. Create and activate a virtual environment
+
+```bash
+cd backend
+python -m venv venv
+
+# Windows (PowerShell):
+.\venv\Scripts\activate
+# Windows (Command Prompt):
+venv\Scripts\activate.bat
+# macOS / Linux:
+source venv/bin/activate
+```
+
+You should see `(venv)` in your prompt.
+
+### 2b. Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Key packages installed:
+- `fastapi`, `uvicorn[standard]` — web framework
+- `pandas`, `numpy`, `scipy`, `openpyxl`, `pyarrow` — data processing
+- `fastavro` — Apache Avro support
+- `Pillow` — image dataset analysis
+- `rapidFuzz` — fuzzy value matching (combined folder mode)
+- `sqlalchemy`, `psycopg2-binary` — PostgreSQL metadata (optional)
+- `azure-storage-blob`, `boto3`, `google-cloud-storage`, `databricks-sdk` — cloud import (all optional)
+- `pyspark` — large file processing (optional, needs Java 11+)
+
+> **No Java?** PySpark will be skipped automatically. Files ≥ 100 MB will still upload but will fall back to Pandas (may be slower for very large files).
+
+### 2c. Configure environment variables
+
+```bash
+# Windows:
+copy .env.example .env
+# macOS / Linux:
+cp .env.example .env
+```
+
+The defaults work out of the box. Optional settings you may want to configure:
+
+| Variable | What it does |
+|----------|--------------|
+| `DATABASE_URL` | PostgreSQL connection string — enables upload metadata storage. Leave blank to skip. |
+| `AZURE_STORAGE_CONNECTION_STRING` | Enables Azure Blob cloud import |
+| `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` + `AWS_REGION` | Enables S3 cloud import |
+| `GCP_PROJECT_ID` + `GCP_CREDENTIALS_JSON` | Enables GCP Storage cloud import |
+| `DATABRICKS_HOST` + `DATABRICKS_TOKEN` | Enables Databricks DBFS cloud import |
+
+> All cloud SDK and database settings are **fully optional**. The server starts and runs without any of them.
+
+### 2d. Start the backend server
+
+```bash
+python -m uvicorn main:app --reload --port 8000
+```
+
+- API root: **http://localhost:8000**
+- Interactive docs (Swagger): **http://localhost:8000/docs**
+- ReDoc: **http://localhost:8000/redoc**
+
+---
+
+## 3. Frontend Setup (React + Vite)
+
+Open a **new terminal**, keeping the backend running.
+
+### 3a. Install Node dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### 3b. Configure environment variables
+
+```bash
+# Windows:
+copy .env.example .env
+# macOS / Linux:
+cp .env.example .env
+```
+
+Leave `VITE_API_URL` empty — Vite's dev proxy forwards `/api/*` to `localhost:8000` automatically.
+
+### 3c. Start the frontend dev server
+
+```bash
+npm run dev
+```
+
+Open **http://localhost:5173**
+
+---
+
+## 4. Using the App
+
+### Uploading data
+
+The home page has four upload methods:
+
+| Section | What to upload |
+|---------|----------------|
+| **Single file** | CSV, JSON, Excel (.xlsx/.xls), TXT, Parquet, Avro, Jupyter (.ipynb) |
+| **Data folder** | A folder of any of the above. Choose **Separate** (each file gets its own tab) or **Combined** (files are merged into one dataset) |
+| **Image folder** | A folder of images (PNG, JPG, JPEG, BMP, WEBP) — triggers the Image Dashboard |
+| **Cloud import** | Azure Blob · AWS S3 · GCP Storage · Databricks — paste a URI, choose file or folder/prefix |
+
+### Dashboard tabs
+
+After upload you land on one of three dashboards:
+
+**Single-file / Combined → Dashboard**
+- **📊 Analysis** — shape, dtypes, missing values, outliers (IQR), correlations
+- **🧹 Cleaning** — the panel scans for issues and presents a checklist; tick what you want and click **Apply**
+- **📈 Visualizations** — interactive Plotly charts; hover over any chart → **⬇ PNG** to save it
+- **⬇️ Download** — download cleaned CSV, analysis JSON report, or generate a per-dataset API key
+
+**Multi-file folder → Multi Dashboard**
+- Left sidebar (desktop) / horizontal scroll strip (mobile) shows all files
+- Click a file to load its own Analysis / Cleaning / Viz / Download tabs
+
+**Image folder → Image Dashboard**
+- Overview stats, sample grid, class breakdown charts, cleaning (remove corrupt / duplicate images), ZIP download
+
+### API key & external data access
+
+1. Open the **Download** tab for any dataset
+2. Click **Generate API Key** — a unique key is shown (save it, displayed once)
+3. Use it from anywhere:
+   ```bash
+   curl -H "X-API-Key: <your-key>" \
+        "http://localhost:8000/api/data/<file_id>?page=1&page_size=100"
+   ```
+4. To rotate: click **Regenerate Key** (old key is immediately invalidated)
+
+---
+
+## 5. Supported File Formats
+
+| Format | Notes |
+|--------|-------|
+| `.csv` | Standard comma-separated values |
+| `.json` | Flat or records-oriented JSON |
+| `.xlsx` / `.xls` | Excel workbooks |
+| `.txt` | Tab or comma-separated text |
+| `.parquet` | Column-oriented binary format |
+| `.avro` | Apache Avro (via fastavro) |
+| `.ipynb` | Jupyter Notebook — extracts the largest DataFrame from cell outputs |
+| Images | `.png` `.jpg` `.jpeg` `.bmp` `.webp` (folder upload only) |
+
+---
+
+## 6. Processing Engines
+
+| File size | Engine | Java required? |
+|-----------|--------|----------------|
+| < 100 MB | Pandas | No |
+| ≥ 100 MB | PySpark local mode | Yes (JDK 11 or 17) |
+
+PySpark runs in **local mode** — no cluster, no distributed infrastructure needed.
+
+---
+
+## 7. Docker (Full Stack)
+
+```bash
+# From the project root:
+docker-compose up --build
+```
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
+
+```bash
+docker-compose down   # stop all containers
+```
+
+Uploaded and cleaned files are persisted in `backend/uploads/`, `backend/cleaned/`, and `backend/reports/` even after containers stop (volume mounts in docker-compose).
+
+---
+
+## 8. Common Issues & Fixes
+
+### `Could not import module "main"` (uvicorn)
+
+You're running uvicorn from the wrong directory. Always run from `backend/`:
+
+```bash
+cd backend
+.\venv\Scripts\activate
+python -m uvicorn main:app --reload --port 8000
+```
+
+### `uvicorn: command not found`
+
+The venv is not active or packages aren't installed there:
+
+```bash
+cd backend
+.\venv\Scripts\activate        # Windows
+source venv/bin/activate        # macOS/Linux
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+```
+
+### CORS error in the browser
+
+Make sure the backend is on port **8000** and the frontend on **5173**. The Vite proxy handles CORS in dev automatically.
+
+### PySpark / Java error
+
+PySpark needs Java 11 or 17 on your PATH. Either:
+- Install from https://adoptium.net/
+- Or the app auto-falls-back to Pandas — no action needed
+
+### `No tabular data found` (.ipynb upload)
+
+The notebook must have a cell that **outputs a DataFrame**:
+```python
+import pandas as pd
+df = pd.read_csv('data.csv')
+df      # must be the last line, or use display(df)
+```
+
+### Cloud import fails silently
+
+The cloud SDK for the selected provider must be installed **and** the matching env vars must be set in `backend/.env`. See Section 2c for the required variable names.
+
+### Port already in use
+
+```bash
+# Windows:
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# macOS/Linux:
+lsof -ti:8000 | xargs kill
+```
+
+---
+
+## 9. Project Structure (Quick Reference)
+
+```
+auto eda/
+├── backend/
+│   ├── main.py               ← FastAPI app, CORS, routers
+│   ├── requirements.txt
+│   ├── .env.example
+│   ├── Dockerfile
+│   ├── routes/               ← upload · analysis · cleaning · visualization
+│   │                           download · multi · image · cloud · data_api
+│   ├── services/             ← analysis · cleaning · visualization · spark
+│   │                           image · multi · combine · cloud
+│   ├── utils/                ← file_utils · response_utils · api_key_utils
+│   ├── db/                   ← SQLAlchemy models + init (optional PostgreSQL)
+│   ├── uploads/              ← uploaded files (git-ignored)
+│   │   └── .keys/            ← per-dataset API key hashes
+│   ├── cleaned/              ← cleaned outputs (git-ignored)
+│   └── reports/              ← cached reports (git-ignored)
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/            ← Home · Dashboard · MultiDashboard · ImageDashboard
+│   │   ├── components/       ← all panels + chart components + CloudImport
+│   │   ├── services/api.js   ← Axios API client
+│   │   └── hooks/
+│   ├── package.json
+│   └── vite.config.js        ← dev proxy → localhost:8000
+│
+├── docker-compose.yml
+├── SETUP.md                  ← this file
+└── README.md
+```
+
 
 ---
 
