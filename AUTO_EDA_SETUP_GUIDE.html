@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto EDA – Setup & Run Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f8f9fb;
+    }
+
+    /* ── Cover page ── */
+    .cover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 40px;
+      page-break-after: always;
+    }
+    .cover .badge {
+      background: rgba(99,179,237,0.15);
+      border: 1px solid rgba(99,179,237,0.3);
+      color: #90cdf4;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 20px;
+      border-radius: 30px;
+      margin-bottom: 28px;
+    }
+    .cover h1 {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #90cdf4, #fff, #90cdf4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover .subtitle {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-bottom: 48px;
+      max-width: 560px;
+    }
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 680px;
+      width: 100%;
+      margin-bottom: 56px;
+    }
+    .cover-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 18px 14px;
+    }
+    .cover-card .icon { font-size: 24px; margin-bottom: 8px; }
+    .cover-card .name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+    .cover-card .val  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .cover-meta {
+      font-size: 12px;
+      color: #475569;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 28px;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── TOC ── */
+    .toc-page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 40px;
+      page-break-after: always;
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3b82f6;
+      margin-bottom: 8px;
+    }
+    .toc-page h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 32px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 16px;
+    }
+    .toc-entry {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .toc-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #1e40af;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 14px;
+    }
+    .toc-num.green  { background: #15803d; }
+    .toc-num.purple { background: #7c3aed; }
+    .toc-num.orange { background: #c2410c; }
+    .toc-num.teal   { background: #0f766e; }
+    .toc-title { font-size: 14px; font-weight: 600; color: #1e293b; flex: 1; }
+    .toc-sub   { font-size: 12px; color: #64748b; margin-top: 1px; }
+
+    /* ── Content pages ── */
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 52px 40px;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+
+    h2.page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .page-desc {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h3 .step-badge {
+      background: #1e40af;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    h3 .step-badge.green  { background: #15803d; }
+    h3 .step-badge.purple { background: #7c3aed; }
+
+    p { margin-bottom: 10px; color: #334155; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.65;
+      margin: 10px 0 18px;
+      overflow-x: auto;
+      border-left: 3px solid #3b82f6;
+    }
+    pre .comment { color: #64748b; }
+    pre .cmd     { color: #86efac; }
+    pre .flag    { color: #fbbf24; }
+    pre .value   { color: #93c5fd; }
+    pre .env-key { color: #f9a8d4; }
+    pre .env-val { color: #86efac; }
+
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #1e40af;
+    }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 13px;
+      display: flex;
+      gap: 10px;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .callout.info    { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .callout.warn    { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .callout.success { background: #f0fdf4; border-left: 4px solid #22c55e; }
+    .callout.danger  { background: #fff1f2; border-left: 4px solid #f43f5e; }
+    .callout-title   { font-weight: 700; margin-bottom: 2px; }
+    .callout.info    .callout-title { color: #1d4ed8; }
+    .callout.warn    .callout-title { color: #b45309; }
+    .callout.success .callout-title { color: #15803d; }
+    .callout.danger  .callout-title { color: #be123c; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12.5px; }
+    th { background: #1e293b; color: #e2e8f0; text-align: left; padding: 10px 14px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .required { color: #dc2626; font-size: 10px; font-weight: 700; }
+    .optional { color: #16a34a; font-size: 10px; font-weight: 700; }
+
+    /* ── Steps ── */
+    .steps { counter-reset: step; }
+    .step-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .step-item::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 36px;
+      bottom: -20px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+    .step-item:last-child::before { display: none; }
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #1e40af;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .step-circle.green  { background: #15803d; }
+    .step-circle.purple { background: #7c3aed; }
+    .step-content { flex: 1; padding-top: 6px; }
+    .step-content strong { font-size: 14px; color: #0f172a; }
+
+    /* ── Port reference ── */
+    .port-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .port-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .port-card .port { font-size: 22px; font-weight: 800; color: #1e40af; font-family: 'JetBrains Mono', monospace; }
+    .port-card .name { font-size: 11px; color: #64748b; margin-top: 4px; font-weight: 600; }
+    .port-card .url  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Troubleshooting ── */
+    .trouble-item {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .trouble-q {
+      background: #fef3c7;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #92400e;
+      border-bottom: 1px solid #fde68a;
+    }
+    .trouble-a {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 2px solid #e2e8f0; margin: 24px 0; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; margin: 10px 0; }
+    .checklist li {
+      padding: 6px 0 6px 28px;
+      position: relative;
+      font-size: 13px;
+      color: #334155;
+    }
+    .checklist li::before {
+      content: '☐';
+      position: absolute;
+      left: 0;
+      color: #94a3b8;
+      font-size: 16px;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { background: white; font-size: 12px; }
+      .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      pre    { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      th     { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .callout { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .toc-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .port-card .port { color: #1e40af !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  COVER PAGE                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="badge">Deployment &amp; Setup Guide</div>
+  <h1>Auto EDA</h1>
+  <p class="subtitle">Automated Exploratory Data Analysis platform — FastAPI backend · React + Vite frontend · Multi-cloud import · Docker ready</p>
+
+  <div class="cover-grid">
+    <div class="cover-card">
+      <div class="icon">🐍</div>
+      <div class="name">Backend</div>
+      <div class="val">FastAPI · Python 3.11+</div>
+    </div>
+    <div class="cover-card">
+      <div class="icon">⚛️</div>
+      <div class="name">Frontend</div>
+      <div class="val">React 18 · Vite 5</div>
+    </div>
+    <div class="cover-card">
+      <div class="icon">🐳</div>
+      <div class="name">Docker</div>
+      <div class="val">Docker Compose v3.9</div>
+    </div>
+    <div class="cover-card">
+      <div class="icon">📊</div>
+      <div class="name">Processing</div>
+      <div class="val">Pandas · PySpark</div>
+    </div>
+    <div class="cover-card">
+      <div class="icon">☁️</div>
+      <div class="name">Cloud</div>
+      <div class="val">Azure · AWS · GCP · Databricks</div>
+    </div>
+    <div class="cover-card">
+      <div class="icon">🗄️</div>
+      <div class="name">Database</div>
+      <div class="val">PostgreSQL (optional)</div>
+    </div>
+  </div>
+
+  <div class="cover-meta">
+    <span>Auto EDA Platform · v1.0</span>
+    <span>Backend :8000 &nbsp;·&nbsp; Frontend :5173 (dev) / :80 (Docker)</span>
+    <span>May 2026</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  TABLE OF CONTENTS                                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="toc-page">
+  <div class="section-label">Navigation</div>
+  <h2>Table of Contents</h2>
+
+  <div class="toc-entry">
+    <div class="toc-num">1</div>
+    <div>
+      <div class="toc-title">Prerequisites</div>
+      <div class="toc-sub">Software you need to install before starting</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num">2</div>
+    <div>
+      <div class="toc-title">Get the Source Code</div>
+      <div class="toc-sub">Clone from GitHub or copy the project folder</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num green">3</div>
+    <div>
+      <div class="toc-title">Method A — Run Without Docker (Manual)</div>
+      <div class="toc-sub">Backend Python venv + Frontend Node — full step-by-step</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num purple">4</div>
+    <div>
+      <div class="toc-title">Method B — Run With Docker Compose</div>
+      <div class="toc-sub">One command to build and start everything — recommended for deployment</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num orange">5</div>
+    <div>
+      <div class="toc-title">Environment Variables Reference</div>
+      <div class="toc-sub">All .env fields for backend and frontend</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num teal">6</div>
+    <div>
+      <div class="toc-title">Verify the Installation</div>
+      <div class="toc-sub">Health checks, URLs, and quick smoke test</div>
+    </div>
+  </div>
+  <div class="toc-entry">
+    <div class="toc-num" style="background:#be123c">7</div>
+    <div>
+      <div class="toc-title">Troubleshooting</div>
+      <div class="toc-sub">Common errors and how to fix them</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 1 — PREREQUISITES                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 1</div>
+  <h2 class="page-title">Prerequisites</h2>
+  <p class="page-desc">Install the following tools before running Auto EDA. All are free and cross-platform (Windows · macOS · Linux).</p>
+
+  <h3>Without Docker</h3>
+
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>Minimum Version</th><th>Download</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Python</strong></td>
+        <td>3.11 or later</td>
+        <td>python.org/downloads</td>
+        <td>Add to PATH during install</td>
+      </tr>
+      <tr>
+        <td><strong>pip</strong></td>
+        <td>comes with Python</td>
+        <td>—</td>
+        <td>Run <code>python -m pip install --upgrade pip</code></td>
+      </tr>
+      <tr>
+        <td><strong>Node.js</strong></td>
+        <td>18 LTS or later</td>
+        <td>nodejs.org</td>
+        <td>Includes npm automatically</td>
+      </tr>
+      <tr>
+        <td><strong>Git</strong></td>
+        <td>any recent</td>
+        <td>git-scm.com</td>
+        <td>Only needed to clone the repo</td>
+      </tr>
+      <tr>
+        <td><strong>Java JRE/JDK</strong></td>
+        <td>8 or later (optional)</td>
+        <td>adoptium.net</td>
+        <td>Only required for PySpark (files ≥ 100 MB). Without Java, Pandas is used as fallback.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>With Docker</h3>
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>Minimum Version</th><th>Download</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Docker Desktop</strong></td>
+        <td>24.0 or later</td>
+        <td>docker.com/products/docker-desktop</td>
+      </tr>
+      <tr>
+        <td><strong>Docker Compose</strong></td>
+        <td>v2 (bundled with Docker Desktop)</td>
+        <td>Included in Docker Desktop</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-icon">💡</div>
+    <div>
+      <div class="callout-title">Verify installations</div>
+      Run these commands after installing. All should print a version number:
+      <pre>python --version
+node --version
+npm --version
+docker --version
+docker compose version</pre>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div>
+      <div class="callout-title">Windows users</div>
+      Use <strong>PowerShell</strong> or <strong>Git Bash</strong> — avoid CMD for path-related commands. When activating the virtual environment use <code>.\venv\Scripts\activate</code> (PowerShell) or <code>venv\Scripts\activate</code> (CMD).
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 2 — GET THE SOURCE CODE                                     -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 2</div>
+  <h2 class="page-title">Get the Source Code</h2>
+  <p class="page-desc">Clone from GitHub or copy the project folder to your machine.</p>
+
+  <h3><span class="step-badge">Option A</span> Clone from GitHub</h3>
+
+  <pre><span class="comment"># Clone the repository</span>
+<span class="cmd">git clone</span> <span class="value">https://github.com/ChaudharyPratham/auto_eda.git</span>
+
+<span class="comment"># Enter the project directory</span>
+<span class="cmd">cd</span> auto_eda</pre>
+
+  <h3><span class="step-badge">Option B</span> Copy the folder manually</h3>
+  <p>If you have the project as a ZIP or on a USB drive, extract / copy it to your machine. The root folder should look like this:</p>
+
+  <pre>auto eda/
+├── backend/          <span class="comment"># FastAPI Python app</span>
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── .env.example
+│   ├── routes/
+│   ├── services/
+│   └── utils/
+├── frontend/         <span class="comment"># React + Vite app</span>
+│   ├── src/
+│   ├── package.json
+│   ├── Dockerfile
+│   └── .env.example
+├── docker-compose.yml
+├── README.md
+└── SETUP.md</pre>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div>
+      <div class="callout-title">Folder name with a space</div>
+      The root folder is named <code>auto eda</code> (with a space). When typing paths in the terminal, wrap it in quotes:<br/>
+      <code>cd "C:\Users\YourName\Desktop\auto eda"</code>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 3 — METHOD A (NO DOCKER)                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 3 — Method A</div>
+  <h2 class="page-title">Run Without Docker</h2>
+  <p class="page-desc">Manual setup using a Python virtual environment and Node.js. Requires two terminal windows running simultaneously.</p>
+
+  <div class="callout success">
+    <div class="callout-icon">✅</div>
+    <div>
+      <div class="callout-title">Best for</div>
+      Local development, debugging, or machines where Docker is not available.
+    </div>
+  </div>
+
+  <h3>Part 1 — Backend Setup</h3>
+  <p>Open a terminal, navigate to the project root, then run every command below in order.</p>
+
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-circle green">1</div>
+      <div class="step-content">
+        <strong>Navigate to the backend folder</strong>
+        <pre><span class="comment"># Windows (PowerShell)</span>
+<span class="cmd">cd</span> <span class="value">"C:\path\to\auto eda\backend"</span>
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cd</span> <span class="value">"/path/to/auto eda/backend"</span></pre>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">2</div>
+      <div class="step-content">
+        <strong>Create a Python virtual environment</strong>
+        <pre><span class="cmd">python -m venv</span> <span class="value">venv</span></pre>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">3</div>
+      <div class="step-content">
+        <strong>Activate the virtual environment</strong>
+        <pre><span class="comment"># Windows (PowerShell)</span>
+<span class="cmd">.\venv\Scripts\activate</span>
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">source</span> venv/bin/activate</pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">Your prompt will change to show <code>(venv)</code> when active.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">4</div>
+      <div class="step-content">
+        <strong>Install Python dependencies</strong>
+        <pre><span class="cmd">pip install -r</span> requirements.txt</pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">This installs FastAPI, Pandas, PySpark, Pillow, cloud SDKs, and more. Takes ~2–5 minutes on first run.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">5</div>
+      <div class="step-content">
+        <strong>Create the .env file</strong>
+        <pre><span class="comment"># Windows</span>
+<span class="cmd">copy</span> .env.example .env
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cp</span> .env.example .env</pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">The defaults work out of the box. See Section 5 for all configurable fields.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">6</div>
+      <div class="step-content">
+        <strong>Start the backend server</strong>
+        <pre><span class="cmd">python -m uvicorn</span> main:app <span class="flag">--reload</span> <span class="flag">--port</span> <span class="value">8000</span></pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">You should see: <em>Uvicorn running on http://0.0.0.0:8000</em>. Keep this terminal open.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="section-label">Section 3 — Method A (continued)</div>
+  <h2 class="page-title">Run Without Docker (Frontend)</h2>
+  <p class="page-desc">Open a <strong>second terminal window</strong> — keep the backend terminal running.</p>
+
+  <h3>Part 2 — Frontend Setup</h3>
+
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-circle green">1</div>
+      <div class="step-content">
+        <strong>Navigate to the frontend folder</strong>
+        <pre><span class="comment"># Windows (PowerShell)</span>
+<span class="cmd">cd</span> <span class="value">"C:\path\to\auto eda\frontend"</span>
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cd</span> <span class="value">"/path/to/auto eda/frontend"</span></pre>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">2</div>
+      <div class="step-content">
+        <strong>Install Node dependencies</strong>
+        <pre><span class="cmd">npm install</span></pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">Downloads ~200 MB of packages into <code>node_modules/</code>. Takes ~1–3 minutes.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">3</div>
+      <div class="step-content">
+        <strong>Create the frontend .env file</strong>
+        <pre><span class="comment"># Windows</span>
+<span class="cmd">copy</span> .env.example .env
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cp</span> .env.example .env</pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">Leave <code>VITE_API_URL</code> empty — the Vite dev proxy automatically forwards <code>/api/*</code> to <code>localhost:8000</code>.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle green">4</div>
+      <div class="step-content">
+        <strong>Start the frontend dev server</strong>
+        <pre><span class="cmd">npm run dev</span></pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">You should see: <em>Local: http://localhost:5173</em>. Open this URL in your browser.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <h3>Access URLs (No Docker)</h3>
+  <div class="port-grid">
+    <div class="port-card">
+      <div class="port">:5173</div>
+      <div class="name">Frontend (React App)</div>
+      <div class="url">http://localhost:5173</div>
+    </div>
+    <div class="port-card">
+      <div class="port">:8000</div>
+      <div class="name">Backend API</div>
+      <div class="url">http://localhost:8000</div>
+    </div>
+    <div class="port-card">
+      <div class="port">/docs</div>
+      <div class="name">Swagger UI</div>
+      <div class="url">http://localhost:8000/docs</div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-icon">🔄</div>
+    <div>
+      <div class="callout-title">To stop the servers</div>
+      Press <code>Ctrl + C</code> in each terminal window.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 4 — METHOD B (DOCKER)                                       -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 4 — Method B</div>
+  <h2 class="page-title">Run With Docker Compose</h2>
+  <p class="page-desc">Single command to build and start both backend and frontend. Docker handles all dependencies automatically.</p>
+
+  <div class="callout success">
+    <div class="callout-icon">✅</div>
+    <div>
+      <div class="callout-title">Best for</div>
+      Sharing with teammates, server deployment, or consistent environments. No Python or Node.js installation needed on the host machine.
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-circle purple">1</div>
+      <div class="step-content">
+        <strong>Navigate to the project root folder</strong>
+        <pre><span class="comment"># Windows (PowerShell)</span>
+<span class="cmd">cd</span> <span class="value">"C:\path\to\auto eda"</span>
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cd</span> <span class="value">"/path/to/auto eda"</span></pre>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle purple">2</div>
+      <div class="step-content">
+        <strong>Create the backend .env file</strong>
+        <pre><span class="comment"># Windows</span>
+<span class="cmd">copy</span> backend\.env.example backend\.env
+
+<span class="comment"># macOS / Linux</span>
+<span class="cmd">cp</span> backend/.env.example backend/.env</pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">Edit <code>backend/.env</code> to set any optional cloud / database settings (see Section 5).</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle purple">3</div>
+      <div class="step-content">
+        <strong>Build and start all containers</strong>
+        <pre><span class="cmd">docker compose up</span> <span class="flag">--build</span></pre>
+        <p style="font-size:12px;color:#64748b;margin-top:6px;">First build takes ~5–10 minutes (downloads base images, installs packages). Subsequent starts are instant. You will see logs from both backend and frontend.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-circle purple">4</div>
+      <div class="step-content">
+        <strong>Open the app in your browser</strong>
+        <p style="font-size:13px;margin-top:6px;">Go to <strong>http://localhost</strong> (port 80). The frontend and backend are both running.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <h3>Access URLs (Docker)</h3>
+  <div class="port-grid">
+    <div class="port-card">
+      <div class="port">:80</div>
+      <div class="name">Frontend (nginx)</div>
+      <div class="url">http://localhost</div>
+    </div>
+    <div class="port-card">
+      <div class="port">:8000</div>
+      <div class="name">Backend API</div>
+      <div class="url">http://localhost:8000</div>
+    </div>
+    <div class="port-card">
+      <div class="port">/docs</div>
+      <div class="name">Swagger UI</div>
+      <div class="url">http://localhost:8000/docs</div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <h3>Other useful Docker commands</h3>
+
+  <table>
+    <thead>
+      <tr><th>What you want to do</th><th>Command</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Run in background (detached)</td>
+        <td><code>docker compose up --build -d</code></td>
+      </tr>
+      <tr>
+        <td>Stop containers</td>
+        <td><code>docker compose down</code></td>
+      </tr>
+      <tr>
+        <td>Stop &amp; remove volumes</td>
+        <td><code>docker compose down -v</code></td>
+      </tr>
+      <tr>
+        <td>Rebuild without cache</td>
+        <td><code>docker compose build --no-cache</code></td>
+      </tr>
+      <tr>
+        <td>View live logs</td>
+        <td><code>docker compose logs -f</code></td>
+      </tr>
+      <tr>
+        <td>View backend logs only</td>
+        <td><code>docker compose logs -f backend</code></td>
+      </tr>
+      <tr>
+        <td>Restart a single service</td>
+        <td><code>docker compose restart backend</code></td>
+      </tr>
+      <tr>
+        <td>Shell into backend container</td>
+        <td><code>docker compose exec backend bash</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div>
+      <div class="callout-title">Make sure Docker Desktop is running</div>
+      Before running any <code>docker</code> command, open Docker Desktop and wait until it shows <em>Engine running</em>.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 5 — ENVIRONMENT VARIABLES                                   -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 5</div>
+  <h2 class="page-title">Environment Variables Reference</h2>
+  <p class="page-desc">All settings live in <code>backend/.env</code>. Copy <code>backend/.env.example</code> → <code>backend/.env</code> and fill in only what you need. Everything marked <span class="optional">OPTIONAL</span> can be left blank — the server starts fine without it.</p>
+
+  <h3>Backend — <code>backend/.env</code></h3>
+
+  <pre><span class="comment"># ── Server ────────────────────────────────────────────────────────────────────</span>
+<span class="env-key">HOST</span>=<span class="env-val">0.0.0.0</span>                       <span class="comment"># Leave as-is</span>
+<span class="env-key">PORT</span>=<span class="env-val">8000</span>                          <span class="comment"># Backend port</span>
+
+<span class="comment"># ── CORS ──────────────────────────────────────────────────────────────────────</span>
+<span class="env-key">ALLOWED_ORIGINS</span>=<span class="env-val">http://localhost:5173,http://localhost:3000</span>
+<span class="comment"># Add your production frontend URL here if deploying</span>
+
+<span class="comment"># ── Upload size ───────────────────────────────────────────────────────────────</span>
+<span class="env-key">MAX_UPLOAD_SIZE_MB</span>=<span class="env-val">500</span>
+
+<span class="comment"># ── PostgreSQL (optional) ─────────────────────────────────────────────────────</span>
+<span class="env-key">DATABASE_URL</span>=<span class="env-val">postgresql://user:password@localhost:5432/autoeda</span>
+<span class="comment"># Leave blank to skip database. Format: postgresql://user:pass@host:port/dbname</span>
+
+<span class="comment"># ── Azure Blob Storage (optional) ────────────────────────────────────────────</span>
+<span class="env-key">AZURE_STORAGE_CONNECTION_STRING</span>=
+<span class="env-key">AZURE_STORAGE_ACCOUNT_NAME</span>=
+<span class="env-key">AZURE_STORAGE_ACCOUNT_KEY</span>=
+
+<span class="comment"># ── AWS S3 (optional) ────────────────────────────────────────────────────────</span>
+<span class="env-key">AWS_ACCESS_KEY_ID</span>=
+<span class="env-key">AWS_SECRET_ACCESS_KEY</span>=
+<span class="env-key">AWS_REGION</span>=<span class="env-val">us-east-1</span>
+
+<span class="comment"># ── Google Cloud Storage (optional) ──────────────────────────────────────────</span>
+<span class="env-key">GCP_PROJECT_ID</span>=
+<span class="env-key">GCP_CREDENTIALS_JSON</span>=     <span class="comment"># Full path to service-account JSON file</span>
+
+<span class="comment"># ── Databricks (optional) ─────────────────────────────────────────────────────</span>
+<span class="env-key">DATABRICKS_HOST</span>=           <span class="comment"># e.g. https://adb-1234567890.1.azuredatabricks.net</span>
+<span class="env-key">DATABRICKS_TOKEN</span>=          <span class="comment"># Personal access token</span>
+<span class="env-key">DATABRICKS_HTTP_PATH</span>=      <span class="comment"># Only needed for SQL Warehouse queries</span></pre>
+
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Required?</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>HOST</code></td><td><span class="optional">OPTIONAL</span></td><td>Bind address. Keep <code>0.0.0.0</code> for Docker; use <code>127.0.0.1</code> for local-only.</td></tr>
+      <tr><td><code>PORT</code></td><td><span class="optional">OPTIONAL</span></td><td>Backend port. Default 8000.</td></tr>
+      <tr><td><code>ALLOWED_ORIGINS</code></td><td><span class="optional">OPTIONAL</span></td><td>Comma-separated list of frontend URLs allowed by CORS.</td></tr>
+      <tr><td><code>MAX_UPLOAD_SIZE_MB</code></td><td><span class="optional">OPTIONAL</span></td><td>Max file size for uploads. Default 500 MB.</td></tr>
+      <tr><td><code>DATABASE_URL</code></td><td><span class="optional">OPTIONAL</span></td><td>PostgreSQL connection string. Leave blank to run without a database.</td></tr>
+      <tr><td><code>AZURE_STORAGE_*</code></td><td><span class="optional">OPTIONAL</span></td><td>Required only if importing data from Azure Blob Storage.</td></tr>
+      <tr><td><code>AWS_*</code></td><td><span class="optional">OPTIONAL</span></td><td>Required only if importing data from AWS S3.</td></tr>
+      <tr><td><code>GCP_*</code></td><td><span class="optional">OPTIONAL</span></td><td>Required only if importing data from Google Cloud Storage.</td></tr>
+      <tr><td><code>DATABRICKS_*</code></td><td><span class="optional">OPTIONAL</span></td><td>Required only if importing data from Databricks DBFS / Volumes.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Frontend — <code>frontend/.env</code></h3>
+  <pre><span class="comment"># Vite dev proxy forwards /api/* to localhost:8000 automatically.</span>
+<span class="comment"># Leave VITE_API_URL blank for local development.</span>
+<span class="env-key">VITE_API_URL</span>=</pre>
+
+  <div class="callout info">
+    <div class="callout-icon">🔑</div>
+    <div>
+      <div class="callout-title">Per-dataset API keys</div>
+      API keys for accessing uploaded datasets are generated automatically on each upload and stored as SHA-256 hashes in <code>uploads/.keys/</code>. No manual configuration needed — use the <strong>Generate API Key</strong> button in the Download tab of the dashboard.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 6 — VERIFY                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 6</div>
+  <h2 class="page-title">Verify the Installation</h2>
+  <p class="page-desc">Use these checks to confirm everything is running correctly after setup.</p>
+
+  <h3>1. Health check — Backend API</h3>
+  <p>Open a browser or run in terminal:</p>
+  <pre><span class="comment"># In browser, open:</span>
+http://localhost:8000/
+
+<span class="comment"># Or via curl:</span>
+<span class="cmd">curl</span> http://localhost:8000/
+
+<span class="comment"># Expected response:</span>
+<span class="value">{"message": "Auto EDA API is running"}</span></pre>
+
+  <h3>2. Swagger interactive docs</h3>
+  <p>Open in browser — you can test all API endpoints here:</p>
+  <pre>http://localhost:8000/docs</pre>
+
+  <h3>3. Frontend loads</h3>
+  <p>Open the app URL:</p>
+  <pre><span class="comment"># No Docker (dev mode):</span>
+http://localhost:5173
+
+<span class="comment"># With Docker:</span>
+http://localhost</pre>
+  <p>You should see the Auto EDA landing page with upload options.</p>
+
+  <h3>4. Quick end-to-end smoke test</h3>
+
+  <ul class="checklist">
+    <li>Drag and drop a <code>.csv</code> file onto the upload area</li>
+    <li>The app navigates to the Dashboard automatically</li>
+    <li>The <strong>Overview</strong> tab shows row/column count and basic stats</li>
+    <li>The <strong>Visualization</strong> tab shows interactive Plotly charts</li>
+    <li>The <strong>Cleaning</strong> tab shows detected issues with a checklist</li>
+    <li>The <strong>Download</strong> tab lets you download cleaned CSV and generate an API key</li>
+  </ul>
+
+  <div class="callout success">
+    <div class="callout-icon">🎉</div>
+    <div>
+      <div class="callout-title">All checks passed?</div>
+      Auto EDA is fully operational. You can now upload CSV, JSON, Excel, Parquet, Avro, text, image folders, and cloud-hosted data.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 7 — TROUBLESHOOTING                                         -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 7</div>
+  <h2 class="page-title">Troubleshooting</h2>
+  <p class="page-desc">Most common errors and how to fix them.</p>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ "Could not import module main" when starting uvicorn</div>
+    <div class="trouble-a">
+      You must run uvicorn <strong>from inside the <code>backend/</code> folder</strong>:
+      <pre><span class="cmd">cd</span> backend
+<span class="cmd">python -m uvicorn</span> main:app <span class="flag">--reload</span> <span class="flag">--port</span> 8000</pre>
+      Never run it from the project root or with a path like <code>backend/main:app</code>.
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ "ModuleNotFoundError" after activating venv</div>
+    <div class="trouble-a">
+      The venv was not activated before installing, or packages were installed globally instead. Fix:
+      <pre><span class="comment"># Make sure venv is active (see (venv) in prompt), then:</span>
+<span class="cmd">pip install -r</span> requirements.txt</pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Frontend shows "Network Error" or blank page</div>
+    <div class="trouble-a">
+      The backend is not running, or the port is wrong. Confirm:
+      <ul style="margin-left:20px; margin-top:6px; font-size:13px;">
+        <li>Backend terminal is still open and shows <em>Uvicorn running</em></li>
+        <li><code>http://localhost:8000</code> returns a JSON response in the browser</li>
+        <li>No firewall is blocking port 8000</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ "EADDRINUSE: address already in use :::5173" or :::8000</div>
+    <div class="trouble-a">
+      Another process is using that port. Kill it:
+      <pre><span class="comment"># Windows (find and kill port 8000):</span>
+<span class="cmd">netstat -ano | findstr</span> :8000
+<span class="cmd">taskkill /PID</span> &lt;PID from above&gt; <span class="flag">/F</span>
+
+<span class="comment"># macOS / Linux:</span>
+<span class="cmd">lsof -ti :8000 | xargs kill -9</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Docker: "port is already allocated"</div>
+    <div class="trouble-a">
+      Port 80 or 8000 is used by another container or service. Stop other containers first:
+      <pre><span class="cmd">docker compose down</span>
+<span class="cmd">docker ps -a</span>          <span class="comment"># list all containers</span>
+<span class="cmd">docker stop</span> &lt;id&gt;      <span class="comment"># stop the conflicting one</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ "PySpark not available" or Java error in logs</div>
+    <div class="trouble-a">
+      Java is not installed or not on PATH. For files under 100 MB Pandas is used as fallback automatically — no action needed. For files ≥ 100 MB, install Java:
+      <pre><span class="comment"># Check Java:</span>
+<span class="cmd">java -version</span>
+<span class="comment"># If missing, download from adoptium.net and add to PATH.</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Build error: "Cannot resolve 'buffer/'" from Plotly</div>
+    <div class="trouble-a">
+      The frontend imports <code>plotly.js</code> (source build) instead of the pre-built dist. Check <code>VisualizationPanel.jsx</code>:
+      <pre><span class="comment">// ✅ Correct:</span>
+<span class="cmd">import</span> Plotly <span class="flag">from</span> <span class="value">'plotly.js/dist/plotly'</span>
+
+<span class="comment">// ❌ Wrong:</span>
+<span class="cmd">import</span> Plotly <span class="flag">from</span> <span class="value">'plotly.js'</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Upload fails with "413 Request Entity Too Large"</div>
+    <div class="trouble-a">
+      Increase <code>MAX_UPLOAD_SIZE_MB</code> in <code>backend/.env</code>:
+      <pre><span class="env-key">MAX_UPLOAD_SIZE_MB</span>=<span class="env-val">1000</span></pre>
+      Then restart the backend server.
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Cloud import fails: "azure-storage-blob is not installed"</div>
+    <div class="trouble-a">
+      Cloud SDK packages are listed in <code>requirements.txt</code> but may have been skipped. Reinstall with venv active:
+      <pre><span class="cmd">pip install</span> azure-storage-blob boto3 google-cloud-storage databricks-sdk</pre>
+    </div>
+  </div>
+
+  <hr/>
+
+  <div class="callout info">
+    <div class="callout-icon">📖</div>
+    <div>
+      <div class="callout-title">Need more help?</div>
+      Check <code>README.md</code> and <code>SETUP.md</code> in the project root for detailed feature documentation, API reference, and architecture overview.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
