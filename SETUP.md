@@ -71,17 +71,46 @@ copy .env.example .env
 cp .env.example .env
 ```
 
-The defaults work out of the box. Optional settings you may want to configure:
+Open `backend/.env` and fill in the fields below.  
+**Everything is optional except the first block** — the server works with just the defaults.
 
-| Variable | What it does |
-|----------|--------------|
-| `DATABASE_URL` | PostgreSQL connection string — enables upload metadata storage. Leave blank to skip. |
-| `AZURE_STORAGE_CONNECTION_STRING` | Enables Azure Blob cloud import |
-| `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` + `AWS_REGION` | Enables S3 cloud import |
-| `GCP_PROJECT_ID` + `GCP_CREDENTIALS_JSON` | Enables GCP Storage cloud import |
-| `DATABRICKS_HOST` + `DATABRICKS_TOKEN` | Enables Databricks DBFS cloud import |
+```env
+# ── Server (defaults work fine for local dev) ─────────────────────────────────
+HOST=0.0.0.0
+PORT=8000
 
-> All cloud SDK and database settings are **fully optional**. The server starts and runs without any of them.
+# ── CORS – add your frontend URL if deploying elsewhere ───────────────────────
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# ── Max upload size in MB ─────────────────────────────────────────────────────
+MAX_UPLOAD_SIZE_MB=500
+
+# ── PostgreSQL (optional – stores upload metadata) ────────────────────────────
+# Leave blank to skip. Format: postgresql://user:password@host:5432/dbname
+DATABASE_URL=
+
+# ── Azure Blob Storage (optional – enables cloud import from Azure) ───────────
+# Use EITHER connection string OR account name + key (not both)
+AZURE_STORAGE_CONNECTION_STRING=
+AZURE_STORAGE_ACCOUNT_NAME=
+AZURE_STORAGE_ACCOUNT_KEY=
+
+# ── AWS S3 (optional – enables cloud import from S3) ─────────────────────────
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=us-east-1
+
+# ── Google Cloud Storage (optional – enables cloud import from GCS) ───────────
+GCP_PROJECT_ID=
+GCP_CREDENTIALS_JSON=        # full path to your service-account JSON file
+
+# ── Databricks (optional – enables cloud import from DBFS / Volumes) ─────────
+DATABRICKS_HOST=             # e.g. https://adb-1234567890.1.azuredatabricks.net
+DATABRICKS_TOKEN=            # personal access token
+DATABRICKS_HTTP_PATH=        # only needed for SQL Warehouse queries
+```
+
+> **Per-dataset API keys** are generated automatically on every upload and stored as SHA-256 hashes under `uploads/.keys/`. No configuration needed — use the **Generate API Key** button in the Download tab.
 
 ### 2d. Start the backend server
 
