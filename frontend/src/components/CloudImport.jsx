@@ -7,6 +7,7 @@ const PROVIDERS = [
     icon: '☁️',
     color: 'blue',
     placeholder: 'https://<account>.blob.core.windows.net/<container>/<blob>\nor  az://<container>/<blob>',
+    folderPlaceholder: 'az://<container>/<prefix>/\ne.g.  az://my-container/datasets/sales-2024/',
     envVars: ['AZURE_STORAGE_CONNECTION_STRING', 'AZURE_STORAGE_ACCOUNT_NAME + KEY'],
   },
   {
@@ -15,6 +16,7 @@ const PROVIDERS = [
     icon: '🟠',
     color: 'orange',
     placeholder: 's3://<bucket>/<key>',
+    folderPlaceholder: 's3://<bucket>/<prefix>/\ne.g.  s3://my-bucket/datasets/monthly/',
     envVars: ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION'],
   },
   {
@@ -23,6 +25,7 @@ const PROVIDERS = [
     icon: '🔵',
     color: 'green',
     placeholder: 'gs://<bucket>/<object>',
+    folderPlaceholder: 'gs://<bucket>/<prefix>/\ne.g.  gs://my-bucket/datasets/q1-2024/',
     envVars: ['GCP_PROJECT_ID', 'GCP_CREDENTIALS_JSON'],
   },
   {
@@ -31,6 +34,7 @@ const PROVIDERS = [
     icon: '⚡',
     color: 'red',
     placeholder: 'dbfs:/FileStore/datasets/file.parquet\nor  /Volumes/catalog/schema/volume/file.csv',
+    folderPlaceholder: 'dbfs:/FileStore/datasets/my-folder/\nor  /Volumes/catalog/schema/volume/my-folder/',
     envVars: ['DATABRICKS_HOST', 'DATABRICKS_TOKEN'],
   },
 ]
@@ -119,14 +123,21 @@ export default function CloudImport({ onSuccess }) {
 
       {/* URI input */}
       <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-500 mb-1">File URI</label>
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          {importType === 'folder' ? 'Folder / Prefix URI' : 'File URI'}
+        </label>
         <textarea
           rows={2}
           value={uri}
           onChange={(e) => setUri(e.target.value)}
-          placeholder={provider.placeholder}
+          placeholder={importType === 'folder' ? provider.folderPlaceholder : provider.placeholder}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-300"
         />
+        {importType === 'folder' && (
+          <p className="mt-1 text-xs text-gray-400">
+            Supports .csv, .json, .xlsx, .parquet, .avro, .txt and image files — all files under the prefix are downloaded.
+          </p>
+        )}
       </div>
 
       {/* Env vars hint */}
@@ -141,7 +152,7 @@ export default function CloudImport({ onSuccess }) {
         disabled={loading || !uri.trim()}
         className="px-5 py-2 bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 text-white font-semibold rounded-lg text-sm transition-colors"
       >
-        {loading ? 'Importing…' : '⬆ Import File'}
+        {loading ? 'Importing…' : importType === 'folder' ? '📁 Import Folder' : '⬆ Import File'}
       </button>
 
       {error && (
