@@ -278,7 +278,7 @@ export default function ImageAnalysisPanel({ folderId }) {
                   marker: { color: '#7c3aed' },
                 }]}
                 layout={{ ...PLOTLY_LAYOUT, height: 280, xaxis: { title: 'Class' }, yaxis: { title: 'Images' } }}
-                config={{ responsive: true, displayModeBar: false }}
+                config={{ responsive: true, displayModeBar: 'hover' }}
                 style={{ width: '100%' }}
               />
             </Section>
@@ -294,7 +294,7 @@ export default function ImageAnalysisPanel({ folderId }) {
                   marker: { color: '#3b82f6' },
                 }]}
                 layout={{ ...PLOTLY_LAYOUT, height: 230, xaxis: { title: 'Width (px)' }, yaxis: { title: 'Count' } }}
-                config={{ responsive: true, displayModeBar: false }}
+                config={{ responsive: true, displayModeBar: 'hover' }}
                 style={{ width: '100%' }}
               />
             </Section>
@@ -308,7 +308,7 @@ export default function ImageAnalysisPanel({ folderId }) {
                   marker: { color: '#10b981' },
                 }]}
                 layout={{ ...PLOTLY_LAYOUT, height: 230, xaxis: { title: 'Height (px)' }, yaxis: { title: 'Count' } }}
-                config={{ responsive: true, displayModeBar: false }}
+                config={{ responsive: true, displayModeBar: 'hover' }}
                 style={{ width: '100%' }}
               />
             </Section>
@@ -323,7 +323,7 @@ export default function ImageAnalysisPanel({ folderId }) {
                   textinfo: 'label+percent',
                 }]}
                 layout={{ ...PLOTLY_LAYOUT, height: 230, margin: { t: 10, b: 10, l: 10, r: 10 } }}
-                config={{ responsive: true, displayModeBar: false }}
+                config={{ responsive: true, displayModeBar: 'hover' }}
                 style={{ width: '100%' }}
               />
             </Section>
@@ -338,7 +338,7 @@ export default function ImageAnalysisPanel({ folderId }) {
                   textinfo: 'label+percent',
                 }]}
                 layout={{ ...PLOTLY_LAYOUT, height: 230, margin: { t: 10, b: 10, l: 10, r: 10 } }}
-                config={{ responsive: true, displayModeBar: false }}
+                config={{ responsive: true, displayModeBar: 'hover' }}
                 style={{ width: '100%' }}
               />
             </Section>
