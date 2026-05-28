@@ -442,3 +442,13 @@ PySpark runs in **local mode** (`local[*]`) — no cluster, no distributed infra
 - **Phase 1** ✅ File upload, CSV support, Pandas analysis
 - **Phase 2** ✅ Data cleaning, visualizations, download
 - **Phase 3** ✅ Spark integration (large files), Parquet support
+
+## Glimpse of project
+
+![](image/1.png)
+![](image/2.png)
+![](image/3.png)
+![](image/4.png)
+![](image/5.png)
+![](image/6.png)
+![](image/7.png)
