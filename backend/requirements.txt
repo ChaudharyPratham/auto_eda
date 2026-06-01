@@ -37,3 +37,8 @@ rapidFuzz>=3.6.0
 # ─── Utilities ────────────────────────────────────────────────────────────────
 python-dotenv==1.0.1
 aiofiles==23.2.1
+
+# ─── Streaming Analytics (Kafka producer lib + Postgres driver) ───────────────
+kafka-python==2.0.2
+psycopg2-binary>=2.9.0  # already listed above; kept here for clarity
+

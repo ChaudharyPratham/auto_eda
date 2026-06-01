@@ -452,6 +452,13 @@
       <div class="toc-sub">Common errors and how to fix them</div>
     </div>
   </div>
+  <div class="toc-entry">
+    <div class="toc-num" style="background:#0369a1">8</div>
+    <div>
+      <div class="toc-title">⚡ Streaming Analytics Setup</div>
+      <div class="toc-sub">Kafka · PySpark · PostgreSQL · REST ingest API · Live dashboard</div>
+    </div>
+  </div>
 </div>
 
 
@@ -1127,15 +1134,157 @@ http://localhost</pre>
     </div>
   </div>
 
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Streaming: <code>KafkaTimeoutError</code> — producer can't connect</div>
+    <div class="trouble-a">
+      Kafka inside Docker advertises its internal hostname <code>kafka:9092</code>, which local Python scripts cannot resolve. The <code>docker-compose.yml</code> must define dual listeners:
+      <pre><span class="env-key">KAFKA_LISTENERS</span>: <span class="env-val">PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092</span>
+<span class="env-key">KAFKA_ADVERTISED_LISTENERS</span>: <span class="env-val">PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092</span>
+<span class="env-key">KAFKA_INTER_BROKER_LISTENER_NAME</span>: <span class="env-val">PLAINTEXT_INTERNAL</span></pre>
+      After editing docker-compose.yml, recreate the Kafka container:
+      <pre><span class="cmd">docker-compose stop kafka zookeeper</span>
+<span class="cmd">docker-compose rm -f kafka zookeeper</span>
+<span class="cmd">docker-compose up zookeeper kafka -d</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Streaming: <code>NativeIO$Windows.access0 UnsatisfiedLinkError</code> in PySpark</div>
+    <div class="trouble-a">
+      PySpark on Windows needs <code>winutils.exe</code> to access the local filesystem. Download it once:
+      <pre><span class="cmd">New-Item -ItemType Directory -Force -Path</span> <span class="value">"C:\hadoop\bin"</span>
+<span class="cmd">Invoke-WebRequest -Uri</span> <span class="value">"https://github.com/cdarlint/winutils/raw/master/hadoop-3.3.5/bin/winutils.exe"</span> \
+  <span class="flag">-OutFile</span> <span class="value">"C:\hadoop\bin\winutils.exe"</span>
+<span class="cmd">Invoke-WebRequest -Uri</span> <span class="value">"https://github.com/cdarlint/winutils/raw/master/hadoop-3.3.5/bin/hadoop.dll"</span> \
+  <span class="flag">-OutFile</span> <span class="value">"C:\hadoop\bin\hadoop.dll"</span></pre>
+      Then always start the consumer with <code>$env:HADOOP_HOME="C:\hadoop"</code>.
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Streaming: <code>init_tables.py</code> — hostname "postgres" not found</div>
+    <div class="trouble-a">
+      The default DATABASE_URL uses <code>postgres</code> (the Docker service name), which only resolves inside Docker. When running locally, override it:
+      <pre><span class="env-key">$env:DATABASE_URL</span>=<span class="env-val">"postgresql://postgres:postgres@localhost:5432/autoeda"</span>
+<span class="cmd">.\..\venv\Scripts\python.exe init_tables.py</span></pre>
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Streaming: constant HIGH_ERROR_RATE alerts every minute</div>
+    <div class="trouble-a">
+      The mock producer was generating ~20% ERROR logs, which sat right at the 20% threshold — random variance caused most windows to trigger. Fix: lower producer ERROR weight and raise alert threshold.
+      In <code>producer.py</code> change:
+      <pre><span class="comment"># Before (too close to threshold)</span>
+WEIGHTS = [60, 20, 20]   <span class="comment"># 20% ERROR</span>
+<span class="comment"># After (well below threshold)</span>
+WEIGHTS = [70, 20, 10]   <span class="comment"># 10% ERROR</span></pre>
+      In <code>spark_consumer.py</code> change the alert threshold from <code>20.0</code> to <code>30.0</code>.
+    </div>
+  </div>
+
+  <div class="trouble-item">
+    <div class="trouble-q">❌ Python 3.14: <code>pandas has no wheel for cp314</code></div>
+    <div class="trouble-a">
+      pandas 2.2.x does not publish pre-built wheels for Python 3.14. Use Python 3.11 instead:
+      <pre><span class="comment"># Check which Python versions you have installed</span>
+<span class="cmd">py -0</span>
+<span class="comment"># Create venv explicitly with 3.11</span>
+<span class="cmd">py -3.11 -m venv venv</span>
+<span class="cmd">.\venv\Scripts\pip.exe install -r requirements.txt --prefer-binary</span></pre>
+    </div>
+  </div>
+
   <hr/>
 
   <div class="callout info">
     <div class="callout-icon">📖</div>
     <div>
       <div class="callout-title">Need more help?</div>
-      Check <code>README.md</code> and <code>SETUP.md</code> in the project root for detailed feature documentation, API reference, and architecture overview.
+      Check <code>README.md</code>, <code>SETUP.md</code>, and <code>STREAMING_SETUP.md</code> in the project root for detailed feature documentation, API reference, and streaming-specific troubleshooting.
     </div>
   </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SECTION 8 — STREAMING ANALYTICS SETUP                               -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Section 8</div>
+  <h2 class="page-title">⚡ Streaming Analytics Setup</h2>
+  <p class="page-desc">Real-time log pipeline: Kafka → PySpark Structured Streaming → PostgreSQL → React dashboard. Includes a REST ingest API so any application can send events.</p>
+
+  <div class="callout info">
+    <div class="callout-icon">🏗️</div>
+    <div>
+      <div class="callout-title">Architecture</div>
+      <code>Your App → POST /api/stream/ingest → FastAPI → Kafka "logs" topic → spark_consumer.py (1-min window) → PostgreSQL → Dashboard (polls every 5 s)</code>
+    </div>
+  </div>
+
+  <h3><span class="step-badge">1</span> Prerequisites</h3>
+  <table>
+    <thead><tr><th>Requirement</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Docker Desktop</strong></td><td>Must be running before any docker-compose commands</td></tr>
+      <tr><td><strong>Python 3.11 venv</strong></td><td>Use <code>py -3.11 -m venv venv</code> — Python 3.14 breaks pandas wheels</td></tr>
+      <tr><td><strong>winutils.exe</strong> (Windows only)</td><td>Required by PySpark — see troubleshooting section</td></tr>
+      <tr><td><strong>kafka-python 2.0.2</strong></td><td>Included in <code>requirements.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="step-badge green">2</span> Start Docker Services</h3>
+  <p>Run from the <strong>project root</strong> (where <code>docker-compose.yml</code> lives):</p>
+  <pre><span class="comment"># Start Kafka + Zookeeper + PostgreSQL</span>
+<span class="cmd">docker-compose up zookeeper kafka postgres -d</span>
+
+<span class="comment"># Wait ~20 s then verify all three are Up</span>
+<span class="cmd">docker ps</span></pre>
+
+  <h3><span class="step-badge green">3</span> Initialise Database Tables</h3>
+  <pre><span class="cmd">cd backend\streaming</span>
+<span class="env-key">$env:DATABASE_URL</span>=<span class="env-val">"postgresql://postgres:postgres@localhost:5432/autoeda"</span>
+<span class="cmd">.\..\venv\Scripts\python.exe init_tables.py</span>
+<span class="comment"># Expected: [init_tables] stream_metrics, stream_alerts, stream_api_keys, stream_events are ready.</span></pre>
+
+  <h3><span class="step-badge green">4</span> Start the Mock Producer</h3>
+  <pre><span class="env-key">$env:KAFKA_BOOTSTRAP</span>=<span class="env-val">"localhost:9092"</span>
+<span class="cmd">.\..\venv\Scripts\python.exe producer.py</span>
+<span class="comment"># Expected: [producer] Connected to Kafka at localhost:9092</span></pre>
+
+  <h3><span class="step-badge green">5</span> Start the Spark Consumer (Windows)</h3>
+  <pre><span class="env-key">$env:DATABASE_URL</span>=<span class="env-val">"postgresql://postgres:postgres@localhost:5432/autoeda"</span>
+<span class="env-key">$env:KAFKA_BOOTSTRAP</span>=<span class="env-val">"localhost:9092"</span>
+<span class="env-key">$env:HADOOP_HOME</span>=<span class="env-val">"C:\hadoop"</span>
+<span class="cmd">.\..\venv\Scripts\python.exe spark_consumer.py</span>
+<span class="comment"># Wait ~90 s for first 1-minute window to complete</span></pre>
+
+  <h3><span class="step-badge purple">6</span> Generate an API Key</h3>
+  <pre><span class="cmd">curl -X POST http://localhost:8000/api/stream/api-key</span> \
+  <span class="flag">-H</span> <span class="value">"Content-Type: application/json"</span> \
+  <span class="flag">-d</span> <span class="value">'{"name": "my-app"}'</span>
+<span class="comment"># Returns { "data": { "key": "abc123...", ... } } — copy the key, shown once only</span></pre>
+
+  <h3><span class="step-badge purple">7</span> Send Events</h3>
+  <pre><span class="cmd">curl -X POST http://localhost:8000/api/stream/ingest</span> \
+  <span class="flag">-H</span> <span class="value">"X-API-Key: YOUR_KEY"</span> \
+  <span class="flag">-H</span> <span class="value">"Content-Type: application/json"</span> \
+  <span class="flag">-d</span> <span class="value">'{"service":"payment","level":"ERROR","response_time":1200}'</span></pre>
+
+  <h3><span class="step-badge">8</span> View the Dashboard</h3>
+  <p>Open <strong>http://localhost:5173/streaming</strong> — data appears after the first 1-minute aggregation window (~90 s after starting the consumer).</p>
+
+  <table>
+    <thead><tr><th>Dashboard section</th><th>What it shows</th><th>Refresh rate</th></tr></thead>
+    <tbody>
+      <tr><td>KPI cards</td><td>Latest window: total requests, error count, error rate, avg response time</td><td>5 s</td></tr>
+      <tr><td>Line charts</td><td>Last 60 minutes of 1-min aggregation windows</td><td>30 s</td></tr>
+      <tr><td>Raw Events table</td><td>Latest 100 events ingested via REST API</td><td>5 s</td></tr>
+      <tr><td>Alert banners</td><td>Unresolved anomaly alerts from stream_alerts</td><td>5 s</td></tr>
+      <tr><td>API Integration</td><td>Key management + curl/Python code examples</td><td>on demand</td></tr>
+    </tbody>
+  </table>
 </div>
 
 </body>

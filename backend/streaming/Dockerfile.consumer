@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+# Java is required to run PySpark
+RUN apt-get update \
+ && apt-get install -y default-jre-headless \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements_consumer.txt .
+RUN pip install --no-cache-dir -r requirements_consumer.txt
+
+COPY spark_consumer.py init_tables.py ./
+
+# init_tables.py runs first to ensure DB tables exist, then starts the stream
+CMD ["sh", "-c", "python init_tables.py && python spark_consumer.py"]

@@ -74,3 +74,27 @@ export const getExposedData = (fileId, apiKey, page = 1, pageSize = 100, columns
     params: { page, page_size: pageSize, ...(columns ? { columns } : {}) },
     headers: { 'X-API-Key': apiKey },
   })
+
+// ── Streaming Analytics API ───────────────────────────────────────────────────
+
+/** Return the last `limit` 1-minute aggregation windows (ascending).
+ *  Pass `service` to get per-service windows computed from stream_events. */
+export const getStreamMetrics = (limit = 60, service = '') =>
+  client.get(`/stream/metrics?limit=${limit}${service ? `&service=${service}` : ''}`)
+
+/** Return the most-recent metric snapshot and unresolved alerts. */
+export const getStreamLatest = () => client.get('/stream/latest')
+
+/** Return the latest raw events from the ingest endpoint. */
+export const getStreamEvents = (limit = 100, service = '') =>
+  client.get(`/stream/events?limit=${limit}${service ? `&service=${service}` : ''}`)
+
+/** Create a new API key. Returns { key, name, id, created_at } — key shown once. */
+export const createApiKey = (name) => client.post('/stream/api-key', { name })
+
+/** List all API keys (no plain text). */
+export const getApiKeys = () => client.get('/stream/api-keys')
+
+/** Revoke an API key by id. */
+export const deleteApiKey = (id) => client.delete(`/stream/api-key/${id}`)
+

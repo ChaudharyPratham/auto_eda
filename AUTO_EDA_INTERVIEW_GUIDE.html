@@ -376,6 +376,7 @@
     <div class="pill">🐍 FastAPI + Python</div>
     <div class="pill">⚛️ React 18 + Vite</div>
     <div class="pill">🐼 Pandas + PySpark</div>
+    <div class="pill">⚡ Kafka + PySpark Streaming</div>
     <div class="pill">☁️ Azure · AWS · GCP · Databricks</div>
     <div class="pill">🐳 Docker + nginx</div>
     <div class="pill">📊 Plotly.js Charts</div>
@@ -459,7 +460,7 @@
     <div class="callout-icon">🎯</div>
     <div>
       <div class="callout-title">30-Second Pitch (memorise this)</div>
-      "Auto EDA is a full-stack web application I built that automates exploratory data analysis. You upload any dataset — CSV, Excel, Parquet, Avro, or even pull directly from AWS S3 or Azure — and the platform instantly gives you statistical summaries, interactive visualizations, and a smart cleaning panel that detects issues and lets you selectively fix them. It also exposes a REST API so any downstream application can access your cleaned data with an API key. It's basically a no-code data exploration tool that handles everything from raw file ingestion to a publish-ready dataset."
+      "Auto EDA is a full-stack web application I built that automates exploratory data analysis. You upload any dataset — CSV, Excel, Parquet, Avro, or even pull directly from AWS S3 or Azure — and the platform instantly gives you statistical summaries, interactive visualizations, and a smart cleaning panel that detects issues and lets you selectively fix them. It also exposes a REST API so any downstream application can access your cleaned data with an API key. On top of that, I added a real-time streaming analytics module: applications can push log events via a REST ingest API, those events flow through Apache Kafka into a PySpark Structured Streaming pipeline that aggregates 1-minute windows, and a live React dashboard shows KPIs and anomaly alerts. It's a full-stack, full-spectrum data platform."
     </div>
   </div>
 
@@ -586,6 +587,27 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
 
   <h2>8. Image Dataset Analysis</h2>
   <p>Upload a folder of images (PNG/JPG/BMP/WebP). The backend uses Pillow to detect: image count per class (folder), resolution stats, corrupted files, and duplicate images (via pixel hash). Outputs a clean ZIP download of valid images.</p>
+
+  <h2>9. ⚡ Streaming Analytics</h2>
+  <p>A real-time log ingestion and monitoring pipeline built on <strong>Apache Kafka + PySpark Structured Streaming + PostgreSQL</strong>.</p>
+
+  <h3>Architecture</h3>
+  <div class="flow" style="flex-direction:column; gap:6px; font-size:13px;">
+    <code>External App → POST /api/stream/ingest (X-API-Key) → FastAPI → stream_events table + Kafka "logs" topic</code>
+    <code>Mock producer.py → Kafka "logs" topic (2 msg/s)</code>
+    <code>Kafka → spark_consumer.py (PySpark) → 1-min tumbling window → stream_metrics + stream_alerts</code>
+    <code>Frontend → polls /api/stream/latest every 5 s → live KPI cards + anomaly alert banners</code>
+  </div>
+
+  <h3>How it works under the hood</h3>
+  <ul>
+    <li><strong>Kafka producer</strong> — Python script that generates mock log events (INFO/WARNING/ERROR) at 2/sec with randomised services and response times. Uses weighted random selection: INFO 70%, WARNING 20%, ERROR 10%.</li>
+    <li><strong>Kafka consumer (PySpark)</strong> — reads from the <code>logs</code> topic using Structured Streaming, applies a <code>window(col("ts"), "1 minute")</code> tumbling aggregation, computes <code>count</code>, <code>sum(is_error)</code>, <code>avg(response_time)</code> per window, then writes to PostgreSQL using <code>foreachBatch</code>.</li>
+    <li><strong>Anomaly detection</strong> — inline in the Spark job: if <code>error_rate &gt; 30%</code> or <code>avg_response_time &gt; 1000ms</code>, an alert row is inserted into <code>stream_alerts</code>.</li>
+    <li><strong>REST ingest API</strong> — <code>POST /api/stream/ingest</code> accepts JSON events from external applications. Requires an <code>X-API-Key</code> header. The key is validated by comparing SHA-256 hashes (never stores plain text). Validated events are saved to <code>stream_events</code> and forwarded to Kafka.</li>
+    <li><strong>API key lifecycle</strong> — keys are created via <code>POST /api/stream/api-key</code>. Only the SHA-256 hash is persisted; the plain key is returned once and never retrievable again. Keys can be revoked (soft-deleted) at any time.</li>
+    <li><strong>Service filtering</strong> — the dashboard filter sends <code>?service=payment</code>. The backend queries <code>stream_events</code> (raw events) for per-service metrics, making filtered views accurate even for data that hasn't yet reached a full aggregation window.</li>
+  </ul>
 </div>
 
 
@@ -659,6 +681,16 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
       <div class="layer">Image</div>
       <div class="tech">Pillow (PIL)</div>
       <div class="why">Standard Python image library. Used for reading image metadata, detecting corruptions, computing pixel hashes.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Message Broker</div>
+      <div class="tech">Apache Kafka</div>
+      <div class="why">High-throughput distributed log. Decouples ingest API from the Spark consumer. Survives consumer restarts with zero data loss.</div>
+    </div>
+    <div class="stack-card">
+      <div class="layer">Stream Processing</div>
+      <div class="tech">PySpark Structured Streaming</div>
+      <div class="why">Micro-batch processing with exactly-once semantics. Native Kafka source. Tumbling window aggregation in a few lines of DataFrame API.</div>
     </div>
   </div>
 
@@ -888,6 +920,38 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
     <div class="qa-q"><span class="q-badge">Q22</span> How would you add user authentication to this project?</div>
     <div class="qa-a">I'd add a <code>/auth</code> route with <code>POST /auth/register</code> and <code>POST /auth/login</code>. Login would return a JWT (JSON Web Token) signed with a secret key. The frontend stores the JWT in memory (or localStorage) and sends it as an <code>Authorization: Bearer {token}</code> header on every request. FastAPI's <code>Depends</code> system would extract and verify the JWT on each protected route. Each uploaded file would be linked to a user ID so users only see their own data.</div>
   </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q23</span> Why Kafka instead of a simple database queue for the streaming pipeline?</div>
+    <div class="qa-a">Kafka is a distributed log, not just a queue. It has three key advantages here: <strong>(1) Durability</strong> — events are persisted on disk and replayed if the Spark consumer crashes. A DB queue would need manual dead-letter handling. <strong>(2) Decoupling</strong> — the ingest API just appends to Kafka; it doesn't need to know anything about the Spark consumer. <strong>(3) Scalability</strong> — Kafka handles millions of messages per second. A Python DB queue would become a bottleneck under high ingest load. For this project, Kafka is admittedly over-engineered — but it demonstrates production patterns.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q24</span> Explain the 1-minute tumbling window aggregation in PySpark.</div>
+    <div class="qa-a">
+      Each event has a timestamp <code>ts</code>. PySpark's <code>window(col("ts"), "1 minute")</code> groups events into non-overlapping 1-minute buckets (e.g. 10:00–10:01, 10:01–10:02). For each bucket we compute: total event count, sum of <code>is_error</code> (1 if level=ERROR else 0), and average response time. The <code>trigger(processingTime="30 seconds")</code> means Spark re-evaluates windows every 30 seconds — so a window appears in the dashboard within 30 s of its first event, and gets updated as more events arrive within that minute. <code>outputMode("complete")</code> rewrites all window rows on each trigger.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q25</span> How does the REST ingest API authenticate callers?</div>
+    <div class="qa-a">Callers send their API key in the <code>X-API-Key</code> header. The backend computes <code>SHA-256(key)</code> and looks up the hash in the <code>stream_api_keys</code> table. If a matching, active row exists, the request proceeds; otherwise it returns <code>401 Unauthorized</code>. The plain key is never stored anywhere — only the hash. This means even a database breach doesn't expose valid keys. The design mirrors how Stripe and GitHub store personal access tokens.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q26</span> How did you handle the "Kafka not available on localhost" problem?</div>
+    <div class="qa-a">Kafka inside Docker advertises itself using the Docker service hostname <code>kafka:9092</code>. That hostname is only resolvable inside the Docker network — local Python scripts running on the host can't find it. The fix was to configure dual listeners in docker-compose.yml: <code>PLAINTEXT://localhost:9092</code> (for host-side scripts) and <code>PLAINTEXT_INTERNAL://kafka:29092</code> (for Docker-internal services). <code>KAFKA_ADVERTISED_LISTENERS</code> is the critical setting — Kafka tells clients which address to use after the initial bootstrap, and it must be an address the client can actually reach.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q27</span> How does the dashboard filter events by service?</div>
+    <div class="qa-a">The frontend sends <code>GET /api/stream/metrics?service=payment</code>. In the backend, the <code>service</code> query param is optional. Without it, the endpoint reads from <code>stream_metrics</code> (pre-aggregated by the Spark job). With it, the endpoint reads raw events from <code>stream_events</code> and computes the aggregation in SQL on the fly — this is more accurate for the current minute because the Spark window hasn't closed yet. The trade-off is slightly higher DB load, but for small services tables it's negligible.</div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q"><span class="q-badge">Q28</span> Why did you use <code>foreachBatch</code> in the Spark consumer instead of a JDBC sink?</div>
+    <div class="qa-a">PySpark's built-in JDBC sink uses <code>outputMode("append")</code> which appends a new row on every trigger, creating duplicates for the same window on each batch. <code>foreachBatch</code> gives me full control: I run an <code>INSERT … ON CONFLICT (window_start) DO UPDATE</code> statement (PostgreSQL upsert), so each window row is created once and updated in place as more events arrive within that minute. This is idempotent and exactly-once from the database perspective.</div>
+  </div>
 </div>
 
 
@@ -941,6 +1005,31 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
         <td><strong>Avro reading</strong></td>
         <td>Standard Pandas can't read Avro files natively</td>
         <td>Added <code>fastavro</code> library — reads schema and records, converts to DataFrame</td>
+      </tr>
+      <tr>
+        <td><strong>Kafka on localhost (dual listeners)</strong></td>
+        <td>Producer running on the host couldn't connect to Kafka inside Docker — it advertised its internal hostname <code>kafka:9092</code> which is not resolvable outside Docker</td>
+        <td>Configured dual listeners in docker-compose.yml: <code>PLAINTEXT://localhost:9092</code> for host scripts and <code>PLAINTEXT_INTERNAL://kafka:29092</code> for Docker-internal services</td>
+      </tr>
+      <tr>
+        <td><strong>PySpark on Windows (winutils)</strong></td>
+        <td>spark_consumer.py crashed immediately with <code>NativeIO$Windows.access0 UnsatisfiedLinkError</code></td>
+        <td>Downloaded <code>winutils.exe</code> + <code>hadoop.dll</code> to <code>C:\hadoop\bin\</code> and set <code>HADOOP_HOME=C:\hadoop</code></td>
+      </tr>
+      <tr>
+        <td><strong>Constant HIGH_ERROR_RATE alerts</strong></td>
+        <td>Producer ERROR weight was 20%, alert threshold was 20% — random variance meant almost every window triggered an alert</td>
+        <td>Lowered producer ERROR weight to 10% and raised alert threshold to 30% so alerts fire only on genuinely anomalous windows</td>
+      </tr>
+      <tr>
+        <td><strong>Duplicate identifier build error (Vite)</strong></td>
+        <td>After a <code>replace_string_in_file</code> edit on StreamingDashboard.jsx, both the old and new function definitions existed in the file, causing a Vite parse error</td>
+        <td>Deleted the file entirely and recreated it from scratch with the correct, complete content</td>
+      </tr>
+      <tr>
+        <td><strong>Python 3.14 / pandas wheel missing</strong></td>
+        <td>Running <code>pip install -r requirements.txt</code> failed — pandas 2.2.x has no pre-built wheel for Python 3.14</td>
+        <td>Recreated the venv with Python 3.11: <code>py -3.11 -m venv venv</code></td>
       </tr>
     </tbody>
   </table>
@@ -1007,6 +1096,20 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
     <div class="resume-bullet">
       <strong>Configured nginx reverse proxy</strong> <span>to serve React static build on port 80 and forward /api/* requests to FastAPI backend, with SQLAlchemy + PostgreSQL metadata storage (optional, graceful fallback)</span>
     </div>
+
+    <h3>⚡ Real-Time Streaming Analytics</h3>
+    <div class="resume-bullet">
+      <strong>Built real-time streaming analytics pipeline</strong> <span>using Apache Kafka (Confluent 7.5.0), PySpark Structured Streaming 3.5, and PostgreSQL — ingests 2+ events/sec, computes 1-minute tumbling window aggregations, and surfaces KPIs and anomaly alerts on a live React dashboard</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Implemented REST event ingest API</strong> <span>with SHA-256 API key authentication — external applications POST log events to <code>/api/stream/ingest</code> using a bearer key; events are validated, persisted to PostgreSQL, and forwarded to Kafka in a single request</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Designed tumbling window anomaly detection</strong> <span>in PySpark Structured Streaming using <code>foreachBatch</code> and PostgreSQL upserts — fires HIGH_ERROR_RATE alerts when error rate exceeds 30% and HIGH_RESPONSE_TIME alerts when avg latency exceeds 1000 ms</span>
+    </div>
+    <div class="resume-bullet">
+      <strong>Resolved Kafka dual-listener networking issue</strong> <span>on Docker Compose — configured separate PLAINTEXT (localhost:9092) and PLAINTEXT_INTERNAL (kafka:29092) listeners so both host-side Python scripts and Docker-internal services could connect without hostname resolution failures</span>
+    </div>
   </div>
 
   <h2>Skills to List on Resume (from this project)</h2>
@@ -1018,9 +1121,10 @@ Header: <span class="p">X-API-Key</span>: <span class="y">sk_abc123...</span></p
       <tr><td>Data</td><td>Pandas, NumPy, PySpark, Parquet, Avro, ETL, Data Cleaning, EDA</td></tr>
       <tr><td>Frontend</td><td>React 18, Vite, Tailwind CSS, Plotly.js, react-router-dom</td></tr>
       <tr><td>Cloud</td><td>Azure Blob Storage, AWS S3 (boto3), GCP Cloud Storage, Databricks</td></tr>
+      <tr><td>Streaming</td><td>Apache Kafka, PySpark Structured Streaming, Kafka Producers/Consumers, Tumbling Windows, Anomaly Detection</td></tr>
       <tr><td>DevOps</td><td>Docker, Docker Compose, nginx, multi-stage builds</td></tr>
       <tr><td>Security</td><td>SHA-256 hashing, CORS configuration, API key auth, input validation</td></tr>
-      <tr><td>Database</td><td>PostgreSQL, SQLAlchemy ORM</td></tr>
+      <tr><td>Database</td><td>PostgreSQL, SQLAlchemy ORM, UPSERT (ON CONFLICT)</td></tr>
       <tr><td>Tools</td><td>Git, Swagger/OpenAPI, Postman, VS Code</td></tr>
     </tbody>
   </table>

@@ -1,6 +1,47 @@
 version: '3.9'
 
 services:
+
+  # ── Zookeeper (required by Kafka) ────────────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME:   2000
+    restart: unless-stopped
+
+  # ── Kafka broker ─────────────────────────────────────────────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID:                        1
+      KAFKA_ZOOKEEPER_CONNECT:                zookeeper:2181
+      # Two listeners: one for local clients (localhost:9092), one for Docker-internal (kafka:29092)
+      KAFKA_LISTENERS:                        PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS:             PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:   PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME:       PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE:        "true"
+    restart: unless-stopped
+
+  # ── PostgreSQL (streaming metrics + main app metadata) ───────────────────────
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB:       autoeda
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   # ── FastAPI backend ──────────────────────────────────────────────────────────
   backend:
     build:
@@ -8,6 +49,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    depends_on:
+      - postgres
     volumes:
       # Persist uploaded / cleaned files between restarts
       - ./backend/uploads:/app/uploads
@@ -18,6 +61,7 @@ services:
       PORT:              "8000"
       ALLOWED_ORIGINS:   "http://localhost,http://localhost:80"
       MAX_UPLOAD_SIZE_MB: "500"
+      DATABASE_URL:      "postgresql://postgres:postgres@postgres:5432/autoeda"
     restart: unless-stopped
 
   # ── React frontend (nginx) ───────────────────────────────────────────────────
@@ -30,3 +74,30 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  # ── Mock log producer ────────────────────────────────────────────────────────
+  log-producer:
+    build:
+      context:    ./backend/streaming
+      dockerfile: Dockerfile.producer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+    restart: unless-stopped
+
+  # ── Spark Structured Streaming consumer ──────────────────────────────────────
+  spark-consumer:
+    build:
+      context:    ./backend/streaming
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      DATABASE_URL:    "postgresql://postgres:postgres@postgres:5432/autoeda"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

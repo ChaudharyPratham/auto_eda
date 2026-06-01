@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import FileUpload from '../components/FileUpload'
 import FolderUpload from '../components/FolderUpload'
 import DataFolderUpload from '../components/DataFolderUpload'
@@ -61,6 +61,14 @@ export default function Home() {
           </div>
           <span className="text-xl font-bold text-gray-900">Auto EDA</span>
           <span className="hidden sm:block text-gray-400 text-sm">— Automated Exploratory Data Analysis</span>
+          <div className="ml-auto">
+            <Link
+              to="/streaming"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold transition-colors border border-indigo-100"
+            >
+              ⚡ Streaming Analytics
+            </Link>
+          </div>
         </div>
       </header>
 

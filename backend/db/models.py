@@ -28,7 +28,32 @@ try:
         cleaned_at = Column(DateTime, nullable=True)
         notes = Column(Text, nullable=True)
 
+    class StreamMetric(Base):
+        """Aggregated 1-minute window written by Spark Structured Streaming."""
+        __tablename__ = "stream_metrics"
+
+        id                = Column(Integer, primary_key=True, autoincrement=True)
+        window_start      = Column(DateTime, nullable=False, unique=True)
+        window_end        = Column(DateTime, nullable=False)
+        total_requests    = Column(Integer, nullable=False)
+        error_count       = Column(Integer, nullable=False)
+        avg_response_time = Column(Float, nullable=False)
+        error_rate        = Column(Float, nullable=False)
+
+    class StreamAlert(Base):
+        """Anomaly alert created when error_rate > 20% or avg_response_time > 1000ms."""
+        __tablename__ = "stream_alerts"
+
+        id         = Column(Integer, primary_key=True, autoincrement=True)
+        created_at = Column(DateTime, default=datetime.utcnow)
+        alert_type = Column(String(50), nullable=False)
+        message    = Column(Text, nullable=False)
+        value      = Column(Float, nullable=True)
+        resolved   = Column(Boolean, default=False)
+
 except ImportError:
     # SQLAlchemy not installed – define stubs so imports don't fail
     Base = object  # type: ignore
     Dataset = None  # type: ignore
+    StreamMetric = None  # type: ignore
+    StreamAlert = None   # type: ignore

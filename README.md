@@ -53,6 +53,47 @@ Every chart has a **⬇ PNG** hover button that downloads a 2× retina-quality i
 
 ---
 
+### ⚡ Streaming Analytics
+
+A real-time log pipeline built on Apache Kafka + PySpark Structured Streaming + PostgreSQL.
+
+**Architecture:**
+```
+Your App  → POST /api/stream/ingest (REST API with API Key)
+                    ↓ store in stream_events   ↓ publish to Kafka
+Mock producer.py → Kafka topic "logs"
+                    ↓
+          spark_consumer.py (PySpark Structured Streaming)
+                    ↓ 1-minute tumbling window aggregation
+          PostgreSQL: stream_metrics + stream_alerts
+                    ↓
+          React Dashboard (polls every 5 s)
+```
+
+**Features:**
+- Live KPI cards: total requests, error count, error rate %, avg response time
+- 4 line charts with alert threshold lines
+- Anomaly alerts: error rate > 30% or avg response time > 1000 ms
+- Service filter (api, auth, payment, parking, sensor)
+- Raw event viewer (events sent via REST API)
+- API key management (generate / copy / revoke)
+- Example curl + Python integration snippets
+
+**Streaming API endpoints:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/stream/ingest` | Send an event (requires `X-API-Key` header) |
+| `POST` | `/api/stream/api-key` | Create a new API key |
+| `GET`  | `/api/stream/api-keys` | List all API keys |
+| `DELETE` | `/api/stream/api-key/{id}` | Revoke a key |
+| `GET`  | `/api/stream/metrics?service=X` | 1-min aggregation windows |
+| `GET`  | `/api/stream/events?service=X` | Latest 100 raw events |
+| `GET`  | `/api/stream/latest` | Current KPI snapshot + alerts |
+
+See **STREAMING_SETUP.md** for full setup instructions.
+
+
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -223,6 +264,23 @@ docker-compose up --build
 # Backend  → http://localhost:8000
 # API docs → http://localhost:8000/docs
 ```
+
+---
+
+## Known Issues & Solutions
+
+Errors encountered during development and how to fix them:
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `pandas 2.2.1 has no wheel for Python 3.14` | pandas doesn't publish wheels for 3.14 yet | Use Python 3.11: `py -3.11 -m venv venv` |
+| `KafkaTimeoutError` on producer | Kafka advertised internal hostname `kafka:9092` to local scripts | Set dual listeners in docker-compose: `PLAINTEXT://localhost:9092` + `PLAINTEXT_INTERNAL://kafka:29092` |
+| `NativeIO$Windows.access0 UnsatisfiedLinkError` in PySpark | PySpark needs winutils.exe on Windows | Download winutils to `C:\hadoop\bin\` and set `HADOOP_HOME=C:\hadoop` |
+| `pipe/dockerDesktopLinuxEngine` error | Docker Desktop is not running | Start Docker Desktop first, wait for it to finish loading |
+| `init_tables.py: could not connect to server` | Script uses Docker hostname `postgres` for local run | Set `$env:DATABASE_URL="postgresql://postgres:postgres@localhost:5432/autoeda"` |
+| Frontend: `Identifier 'X' has already been declared` | File edit left duplicate function definitions | Delete the file, recreate it from scratch |
+| Streaming alerts fire every minute | Producer error weight 20% sat right at the 20% threshold | Lowered producer ERROR weight to 10%, raised threshold to 30% |
+| `docker-compose` run from wrong directory | Picked up wrong/no compose file | Always run docker-compose from project root where `docker-compose.yml` lives |
 
 ---
 
@@ -452,3 +510,6 @@ PySpark runs in **local mode** (`local[*]`) — no cluster, no distributed infra
 ![](image/5.png)
 ![](image/6.png)
 ![](image/7.png)
+![](image/8.png)
+![](image/9.png)
+![](image/10.png)

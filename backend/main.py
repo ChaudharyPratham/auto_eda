@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routes import upload, analysis, cleaning, visualization, download, image, multi, cloud, data_api
+from routes import upload, analysis, cleaning, visualization, download, image, multi, cloud, data_api, streaming
 
 # Load environment variables from .env file
 load_dotenv()
@@ -58,6 +58,7 @@ app.include_router(image.router,         prefix="/api", tags=["Image"])
 app.include_router(multi.router,         prefix="/api", tags=["Multi-File"])
 app.include_router(cloud.router,         prefix="/api", tags=["Cloud Import"])
 app.include_router(data_api.router,      prefix="/api", tags=["Data API"])
+app.include_router(streaming.router,     prefix="/api", tags=["Streaming"])
 
 
 @app.get("/")
